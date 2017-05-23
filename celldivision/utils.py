@@ -5,6 +5,7 @@ import os
 import random
 import re
 from scipy.ndimage import filters
+import time
 
 def natural_key(string_):
     """See http://www.codinghorror.com/blog/archives/001018.html"""
@@ -41,12 +42,12 @@ def getSTIPDescriptor(data, order):
     return np.expand_dims(np.array(decriptor), axis=0)
 
 def loadVideoCube(videoPath):
+    start = time.time()
     pathGT = os.path.join(videoPath, '_trajectories.txt')
     numLines = None
     with open(pathGT) as f:
         content = f.readlines()
         numLines = len(content)
-       
        
     print('videoPath', videoPath)
     files = glob.glob(videoPath + '/*.png')
@@ -66,45 +67,58 @@ def loadVideoCube(videoPath):
         if fileIdx + 1 > numLines:
             print('Annotations for ', str(fileIdx) + ' images')
             break
-        
+    end = time.time()
+    print('Load cube time ', end - start)
     return cube
 
 def getVoxelFromVideoCube(videoCube, startX, startY, startZ, size, timeSize):
     return  videoCube[startX:startX + size, startY:startY + size, startZ:startZ + timeSize]
-    
    
-def getCubeLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, pathGT):
-    pathGT = os.path.join(pathGT, '_trajectories.txt')
-    with open(pathGT) as f:
-        content = f.readlines()
-        gtLine = content[centerCubeZ]
-        tokens = gtLine.split('\t')
-        label = 0
+def getCubeLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, contentGT):
+    gtLine = contentGT[centerCubeZ]
+    tokens = gtLine.split('\t')
+    label = 0
 
-        for tokensIdx in range(0, len(tokens)-3, 3):
-            if int(tokens[tokensIdx + 2]) > 0:#Cell candidate
-                centroidAnnotation = np.array([int(tokens[tokensIdx]), int(tokens[tokensIdx + 1])])
-                cubeCenter = np.array([centerCubeX, centerCubeY])
-                dist = euclidenaDistance(centroidAnnotation, cubeCenter)
-                if dist < (int(tokens[tokensIdx + 2]) + boundaryTolerance):#Is inside
-                    label = 1
-                    if dist > (int(tokens[tokensIdx + 2])-boundaryTolerance):
-                        label = 2
+    for tokensIdx in range(0, len(tokens)-3, 3):
+        if int(tokens[tokensIdx + 2]) > 0:#Cell candidate
+            centroidAnnotation = np.array([int(tokens[tokensIdx]), int(tokens[tokensIdx + 1])])
+            cubeCenter = np.array([centerCubeX, centerCubeY])
+            dist = euclidenaDistance(centroidAnnotation, cubeCenter)
+            if dist < (int(tokens[tokensIdx + 2]) + boundaryTolerance):#Is inside
+                label = 1
+                if dist > (int(tokens[tokensIdx + 2])-boundaryTolerance):
+                    label = 2
                         
-        return label
+    return label
     
 def euclidenaDistance(x1, x2):
     distance = np.subtract(x1, x2)
     return np.linalg.norm(distance)
 
-def getTrainDataFromVideo(videoCube, voxelSize, step, timeSize, order, sequenceName,datasetRoot):
+def getTrainDataFromVideo(tupleArgs):
+    start = time.time()
+    videoCube = tupleArgs[0]
+    voxelSize = tupleArgs[1]
+    step = tupleArgs[2]
+    timeSize = tupleArgs[3]
+    order = tupleArgs[4]
+    sequenceName = tupleArgs[5]
+    datasetRoot = tupleArgs[6]
+    
+    print('Process Feats from ', sequenceName)
     dirFrames = os.path.join(datasetRoot, sequenceName)
     descriptors = np.zeros((1, 8 * order))
     labels = np.zeros(1)
+    
+    contentGT = None
+    pathGT = os.path.join(dirFrames, '_trajectories.txt')
+    with open(pathGT) as f:
+        contentGT = f.readlines()
+        
     for x in range(0, videoCube.shape[0]-voxelSize, step):
         for y in range(0, videoCube.shape[1]-voxelSize, step):
             for z in range(0, videoCube.shape[2]-timeSize, step):
-                voxelLabel = getCubeLabel(x, y, z, 5, dirFrames)
+                voxelLabel = getCubeLabel(x, y, z, 5, contentGT)
 
                 if voxelLabel == 0:
                     ignoreFlag = random.uniform(0.0, 1.0)
@@ -117,5 +131,7 @@ def getTrainDataFromVideo(videoCube, voxelSize, step, timeSize, order, sequenceN
                 #print('voxelDescriptor.shape ',voxelDescriptor.shape)
                 descriptors = np.concatenate((descriptors, voxelDescriptor), axis=0)
                 labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
-    return descriptors, labels
+    end = time.time()
+    print('Process Feats Time ', end - start)
+    return (descriptors, labels)
     
