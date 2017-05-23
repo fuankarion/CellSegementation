@@ -20,7 +20,7 @@ def loadSetFromVideos(videoDirs):
     labelsSet = None
 
     for aVideoDir in videoDirs:
-        dirFrames = os.apth.join(datasetRoot, aVideoDir)
+        dirFrames = os.path.join(datasetRoot, aVideoDir)
         videoCube = loadVideoCube(dirFrames)
 
         print('Extract Feats ', aVideoDir)
