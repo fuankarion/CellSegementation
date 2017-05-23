@@ -3,7 +3,7 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 from utils import *
 
-datasetRoot = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb'
+dRoot = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb'
 
 voxelSize = 10
 step = 15
@@ -15,7 +15,7 @@ dirsTest = ['E03', 'E04']
 
 
 
-def loadSetFromVideos(videoDirs):
+def loadSetFromVideos(videoDirs,datasetRoot):
     featsSet = None
     labelsSet = None
 
@@ -34,8 +34,8 @@ def loadSetFromVideos(videoDirs):
             labelsSet = np.concatenate((labelsSet, labels), axis=0)
     return featsSet, labelsSet
 
-featsTrain, labelsTrain = loadSetFromVideos(dirsTrain)
-featsTest, labelsTest = loadSetFromVideos(dirsTest)
+featsTrain, labelsTrain = loadSetFromVideos(dirsTrain,dRoot)
+featsTest, labelsTest = loadSetFromVideos(dirsTest,dRoot)
 
 print('Train SVM')
 baseSVM = svm.SVC(kernel='rbf', C=1, class_weight='balanced')
