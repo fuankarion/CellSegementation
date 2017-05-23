@@ -1,27 +1,46 @@
-from utils import *
 from sklearn import svm
 from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
+from utils import *
 
-dirFramesTrain = os.path.join(datasetRoot, 'E01')
-dirFramesTest = os.path.join(datasetRoot, 'E17')
-
-videoCubeTrain = loadVideoCube(dirFramesTrain)  
-videoCubeTest = loadVideoCube(dirFramesTest)  
+datasetRoot = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb'
 
 voxelSize = 10
 step = 15
 timeSize = 1
 order = 4
 
-print('Extract Feats')
-featsTrain, labelsTrain = getTrainDataFromVideo(videoCubeTrain, voxelSize, step, timeSize, order, 'E01')
-featsTest, labelsTest = getTrainDataFromVideo(videoCubeTest, voxelSize, step, timeSize, order, 'E17')
+dirsTrain = ['E01', 'E02']
+dirsTest = ['E03', 'E04']
+
+
+
+def loadSetFromVideos(videoDirs):
+    featsSet = None
+    labelsSet = None
+
+    for aVideoDir in videoDirs:
+        dirFrames = os.apth.join(datasetRoot, aVideoDir)
+        videoCube = loadVideoCube(dirFrames)
+
+        print('Extract Feats ', aVideoDir)
+        feats, labels = getTrainDataFromVideo(videoCube, voxelSize, step, timeSize, order, aVideoDir)
+
+        if featsTrain == None:
+            featsSet = feats
+            labelsSet = labels
+        else:
+            featsSet = np.concatenate((featsSet, feats), axis=0)
+            labelsSet = np.concatenate((labelsSet, labels), axis=0)
+    return featsSet, labelsSet
+
+featsTrain, labelsTrain = loadSetFromVideos(dirsTrain)
+featsTest, labelsTest = loadSetFromVideos(dirsTest)
 
 print('Train SVM')
 baseSVM = svm.SVC(kernel='rbf', C=1, class_weight='balanced')
 baseSVM.fit(featsTrain, labelsTrain) 
 
-y_pred = baseSVM.predict(featsTest)
+preds = baseSVM.predict(featsTest)
 target_names = ['Background', 'Cell', 'Boundary']
-print(classification_report(labelsTest, y_pred, target_names=target_names))
+print(classification_report(labelsTest, preds, target_names=target_names))

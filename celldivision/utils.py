@@ -6,10 +6,6 @@ import random
 import re
 from scipy.ndimage import filters
 
-
-datasetRoot = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb'
-
-
 def natural_key(string_):
     """See http://www.codinghorror.com/blog/archives/001018.html"""
     return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]	
