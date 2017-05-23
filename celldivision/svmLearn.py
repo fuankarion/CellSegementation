@@ -13,8 +13,6 @@ order = 4
 dirsTrain = ['E01', 'E02']
 dirsTest = ['E03', 'E04']
 
-
-
 def loadSetFromVideos(videoDirs,datasetRoot):
     featsSet = None
     labelsSet = None
@@ -24,7 +22,7 @@ def loadSetFromVideos(videoDirs,datasetRoot):
         videoCube = loadVideoCube(dirFrames)
 
         print('Extract Feats ', aVideoDir)
-        feats, labels = getTrainDataFromVideo(videoCube, voxelSize, step, timeSize, order, aVideoDir)
+        feats, labels = getTrainDataFromVideo(videoCube, voxelSize, step, timeSize, order, aVideoDir,datasetRoot)
 
         if featsTrain == None:
             featsSet = feats

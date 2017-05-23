@@ -97,7 +97,7 @@ def euclidenaDistance(x1, x2):
     distance = np.subtract(x1, x2)
     return np.linalg.norm(distance)
 
-def getTrainDataFromVideo(videoCube, voxelSize, step, timeSize, order, sequenceName):
+def getTrainDataFromVideo(videoCube, voxelSize, step, timeSize, order, sequenceName,datasetRoot):
     dirFrames = os.path.join(datasetRoot, sequenceName)
     descriptors = np.zeros((1, 8 * order))
     labels = np.zeros(1)
