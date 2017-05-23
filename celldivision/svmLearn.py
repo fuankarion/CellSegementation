@@ -68,41 +68,43 @@ def loadSetFromVideos(videoDirs, datasetRoot, voxelSize, step, timeSize, order):
 
 voxelSize = 10
 step = 20
-timeSize = 1
+#timeSize = 1
 order = 4
-
+CValue = 100
 
 for numVideos in range(3, 100, 3):
-    print('numVideos', numVideos)
-    dirsTrain, dirsTest = createTrainAndTestSubSets(datasetRoot, numVideos)
+    for timeSize in range(1,10,2):
+        print('numVideos', numVideos)
+        dirsTrain, dirsTest = createTrainAndTestSubSets(datasetRoot, numVideos)
 
-    #Load Feats
-    featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelSize, step, timeSize, order)
-    featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelSize, step, timeSize, order)
+        #Load Feats
+        featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelSize, step, timeSize, order)
+        featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelSize, step, timeSize, order)
 
-    print('featsTrain.shape ', featsTrain.shape)
-    print('featsTest.shape ', featsTest.shape)
+        print('featsTrain.shape ', featsTrain.shape)
+        print('featsTest.shape ', featsTest.shape)
 
+        print('Train SVM')
+        baseSVM = svm.SVC(kernel='rbf', C=CValue, class_weight='balanced')
 
-    print('Train SVM')
-    CValue = 50
-    baseSVM = svm.SVC(kernel='rbf', C=CValue, class_weight='balanced')
+        numEstimators = 10
+        clf = BaggingClassifier(baseSVM, n_estimators=numEstimators, max_samples=1.0 / numEstimators, n_jobs=numEstimators)
+        start = time.time()
+        clf.fit(featsTrain, labelsTrain) 
+        end = time.time()
+        print('SVM Train Time ', end - start)
 
-    numEstimators = 10
-    clf = BaggingClassifier(baseSVM, n_estimators=numEstimators, max_samples=1.0 / numEstimators, n_jobs=numEstimators)
-    start = time.time()
-    clf.fit(featsTrain, labelsTrain) 
-    end = time.time()
-    print('SVM Train Time ', end - start)
+        preds = clf.predict(featsTest)
+        target_names = ['Background', 'Cell', 'Boundary']
+        classificationReport = classification_report(labelsTest, preds, target_names=target_names)
+        print(classificationReport)
 
-    preds = clf.predict(featsTest)
-    target_names = ['Background', 'Cell', 'Boundary']
-    classificationReport = classification_report(labelsTest, preds, target_names=target_names)
-    print(classificationReport)
-
-
-    
-    joblib.dump(clf, '/home/jcleon/Storage/ssd1/cellDivision/classifiers/' + str(numVideos) + 'VideosTrain.pkl') 
-    with open('/home/jcleon/Storage/ssd1/cellDivision/classifiers/' + str(numVideos) + 'VideosTrain.txt', 'a') as myfile:
-        myfile.write('NumVideos: ' + str(numVideos) + '\n' + 'C: ' + str(CValue) + '\n' + classificationReport) 
+        targetDirTS='/home/jcleon/Storage/ssd1/cellDivision/classifiers'+str(timeSize)+'TS/'
+        if not os.path.exists(targetDirTS):
+            os.makedirs(targetDirTS)
+            print ('created ', targetDirTS)
+        
+        joblib.dump(clf, targetDirTS + str(numVideos) + 'VideosTrain.pkl') 
+        with open(targetDirTS + str(numVideos) + 'VideosTrain.txt', 'a') as myfile:
+            myfile.write('NumVideos: ' + str(numVideos) + '\n' + 'C: ' + str(CValue) + '\n' + classificationReport) 
 
