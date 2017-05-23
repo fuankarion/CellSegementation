@@ -5,10 +5,6 @@ import os
 import random
 import re
 from scipy.ndimage import filters
-from sklearn import svm
-from sklearn.cross_validation import train_test_split
-from sklearn.metrics import classification_report
-from sklearn.model_selection import GridSearchCV
 
 
 datasetRoot = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb'
@@ -34,9 +30,7 @@ def getSTIPDescriptor(data, order):
         result[:, :, :, 4 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, 1], order=i)   
         result[:, :, :, 5 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, -1], order=i)   
         result[:, :, :, 6 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, 1], order=i)   
-        result[:, :, :, 7 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, -1], order=i) 
-       
-   
+        result[:, :, :, 7 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, -1], order=i)   
     
     for i in range (0, order):
         decriptor.append(result[centerX, centerY, centerZ, 0 + (i * 8)])
@@ -129,29 +123,3 @@ def getTrainDataFromVideo(videoCube, voxelSize, step, timeSize, order, sequenceN
                 labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
     return descriptors, labels
     
-dirFramesTrain = os.path.join(datasetRoot, 'E01')
-dirFramesTest = os.path.join(datasetRoot, 'E17')
-
-videoCubeTrain = loadVideoCube(dirFramesTrain)  
-videoCubeTest = loadVideoCube(dirFramesTest)  
-
-voxelSize = 10
-step = 15
-timeSize = 1
-order = 4
-
-print('Extract Feats')
-featsTrain, labelsTrain = getTrainDataFromVideo(videoCubeTrain, voxelSize, step, timeSize, order, 'E01')
-featsTest, labelsTest = getTrainDataFromVideo(videoCubeTest, voxelSize, step, timeSize, order, 'E17')
-
-print('Train SVM')
-baseSVM = svm.SVC(kernel='rbf', C=1, class_weight='balanced')
-baseSVM.fit(featsTrain, labelsTrain) 
-
-y_pred = baseSVM.predict(featsTest)
-target_names = ['Background', 'Cell', 'Boundary']
-print(classification_report(labelsTest, y_pred, target_names=target_names))
-
-
-
-
