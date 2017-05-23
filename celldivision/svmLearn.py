@@ -10,8 +10,8 @@ step = 15
 timeSize = 1
 order = 4
 
-dirsTrain = ['E01', 'E02']
-dirsTest = ['E03', 'E04']
+dirsTrain = ['E01', 'E02', 'E03', 'E04', 'E05']
+dirsTest = ['E06', 'E07', 'E08', 'E09', 'E10']
 
 def loadSetFromVideos(videoDirs,datasetRoot):
     featsSet = None
