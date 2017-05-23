@@ -24,7 +24,7 @@ def loadSetFromVideos(videoDirs,datasetRoot):
         print('Extract Feats ', aVideoDir)
         feats, labels = getTrainDataFromVideo(videoCube, voxelSize, step, timeSize, order, aVideoDir,datasetRoot)
 
-        if featsTrain == None:
+        if featsSet == None:
             featsSet = feats
             labelsSet = labels
         else:
