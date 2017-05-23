@@ -34,7 +34,7 @@ videoCube_test = ca.loadVideoCube(testFrames)
 voxelSize = 11
 step = 10
 timeSize = 1
-
+tol=5
 voxel_array_train = []
 labels_train = []
 
@@ -44,7 +44,7 @@ for x in range(0, videoCube_train.shape[0]-voxelSize, step):
     for y in range(0, videoCube_train.shape[1]-voxelSize, step):
         for z in range(0, videoCube_train.shape[2]-timeSize, step):
             #voxelDescriptor = getSTIPDescriptor(aVoxel)
-            voxelLabel = ca.getCubeLabel(x, y, z, 5, trainFrames)
+            voxelLabel = ca.getCubeLabel(x, y, z, tol, trainFrames)
             
             if voxelLabel == 0:
                 ignoreFlag = random.uniform(0.0, 1.0)
@@ -72,7 +72,7 @@ for x in range(0, videoCube_test.shape[0]-voxelSize, step):
 
             
             #voxelDescriptor = getSTIPDescriptor(aVoxel)
-            voxelLabel = ca.getCubeLabel(x, y, z, 5, testFrames)
+            voxelLabel = ca.getCubeLabel(x, y, z, tol, testFrames)
             if voxelLabel == 0:
                 ignoreFlag = random.uniform(0.0, 1.0)
                 if ignoreFlag <= 0.8:

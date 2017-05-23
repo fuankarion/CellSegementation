@@ -31,7 +31,7 @@ videoCube_test = ca.loadVideoCube(testFrames)
 
 voxelSize = 11
 step = 10
-timeSize = 20
+timeSize = 5
 
 voxel_array_train = []
 labels_train = []
@@ -92,14 +92,14 @@ model.add(Conv3D(32, (3, 3, 3), padding='same',
 model.add(Activation('relu'))
 model.add(Conv3D(32, (3, 3, 3)))
 model.add(Activation('relu'))
-model.add(MaxPooling3D(pool_size=(2, 2, 2)))
+model.add(MaxPooling3D(pool_size=(2, 2, 1)))
 model.add(Dropout(0.25))
 
 model.add(Conv3D(64, (3, 3, 3), padding='same'))
 model.add(Activation('relu'))
 model.add(Conv3D(64, (3, 3, 3)))
 model.add(Activation('relu'))
-model.add(MaxPooling3D(pool_size=(2, 2, 2)))
+model.add(MaxPooling3D(pool_size=(2, 2, 1)))
 model.add(Dropout(0.25))
 
 model.add(Flatten())
