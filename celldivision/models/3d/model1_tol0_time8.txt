@@ -1,0 +1,16 @@
+Parameters: 
+ Voxel_size: 12 timeSize 8 Step: 15 tol: 0
+ NumTrainSamples: 159846 NumTestSamples: 66380 NumVideos: 30
+ loss_train: 0.470906352447 Acc_train: 0.815997897995
+ loss_test: 0.403020287553 Acc_test: 0.874661042641
+ Epochs: 100
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+ Background       0.98      0.81      0.89     34757
+       Cell       0.84      0.95      0.89     31623
+   Boundary       0.00      0.00      0.00         0
+
+avg / total       0.92      0.87      0.89     66380
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/model1_tol0_time8.h5

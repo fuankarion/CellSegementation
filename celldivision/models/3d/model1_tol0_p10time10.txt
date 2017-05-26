@@ -1,0 +1,16 @@
+Parameters: 
+ Voxel_size: 10 timeSize 10 Step: 10 tol: 0
+ NumTrainSamples: 519135 NumTestSamples: 214846 NumVideos: 30
+ loss_train: 0.442805904272 Acc_train: 0.833952632671
+ loss_test: 0.402290731647 Acc_test: 0.870712044676
+ Epochs: 100
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+ Background       0.98      0.81      0.89    109596
+       Cell       0.87      0.93      0.90    105250
+   Boundary       0.00      0.00      0.00         0
+
+avg / total       0.93      0.87      0.89    214846
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/model1_tol0_path10.h5
