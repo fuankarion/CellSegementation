@@ -8,6 +8,7 @@ from sklearn import svm
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
+import numpy as np
 
 def natural_key(string_):
     """See http://www.codinghorror.com/blog/archives/001018.html"""
@@ -26,15 +27,27 @@ def loadVideoCube(videoPath):
     
     files = sorted(files, key=natural_key)
     
-    sampleImg = cv2.imread(os.path.join(videoPath, files[0]), 0)
+
+    sampleImg_ = cv2.imread(os.path.join(videoPath, files[0]), 0)
     
-    cube = np.zeros((sampleImg.shape[0], sampleImg.shape[1], numLines), np.int8)
+    x = np.linspace(1,sampleImg_.shape[0],sampleImg_.shape[0])    
+    y = np.linspace(1,sampleImg_.shape[1],sampleImg_.shape[1])        
+    distx, disty = np.meshgrid(x,y)
+
+    sampleImg = np.zeros((sampleImg_.shape[0],sampleImg_.shape[1],3))
+    sampleImg[:,:,0] = sampleImg_
+    sampleImg[:,:,0] = distx
+    sampleImg[:,:,0] = disty
+
+    cube = np.zeros((sampleImg.shape[0], sampleImg.shape[1],sampleImg.shape[2], numLines), np.int8)
     fileIdx = 0
     for aFile in files: 
         fileSourcePath = os.path.join(videoPath, aFile)
         img = cv2.imread(fileSourcePath, 0)
-        cube[:, :, fileIdx] = img
-        
+        cube[:, :, 0,fileIdx] = img
+        cube[:, :, 1,fileIdx] = distx
+        cube[:, :, 2,fileIdx] = disty
+      
         fileIdx = fileIdx + 1
         if fileIdx+1 >numLines:
             print('Break at ',fileIdx)
@@ -43,7 +56,7 @@ def loadVideoCube(videoPath):
     return cube
 
 def getVoxelFromVideoCube(videoCube, startX, startY, startZ, size, timeSize):
-    return  videoCube[startX:startX + size, startY:startY + size, startZ:startZ + timeSize]
+    return  videoCube[startX:startX + size, startY:startY + size, :,startZ:startZ + timeSize]
 
 def euclideanDistance(x1, x2):
     distance = np.subtract(x1, x2)
