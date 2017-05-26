@@ -19,15 +19,15 @@ def getSTIPDescriptor(data, order):
     centerZ = int(result.shape[2] / 2)
     
     for i in range (0, order):
-        result[:, :, :, 0 + (i * 8)] = filters.gaussian_filter(data, [1, 1, 1], order=i)   
-        result[:, :, :, 1 + (i * 8)] = filters.gaussian_filter(data, [1, 1, -1], order=i)   
-        result[:, :, :, 2 + (i * 8)] = filters.gaussian_filter(data, [1, -1, 1], order=i)   
-        result[:, :, :, 3 + (i * 8)] = filters.gaussian_filter(data, [1, -1, -1], order=i)   
+        result[:,:,:, 0 + (i * 8)] = filters.gaussian_filter(data, [1, 1, 1], order=i)   
+        result[:,:,:, 1 + (i * 8)] = filters.gaussian_filter(data, [1, 1, -1], order=i)   
+        result[:,:,:, 2 + (i * 8)] = filters.gaussian_filter(data, [1, -1, 1], order=i)   
+        result[:,:,:, 3 + (i * 8)] = filters.gaussian_filter(data, [1, -1, -1], order=i)   
 
-        result[:, :, :, 4 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, 1], order=i)   
-        result[:, :, :, 5 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, -1], order=i)   
-        result[:, :, :, 6 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, 1], order=i)   
-        result[:, :, :, 7 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, -1], order=i)   
+        result[:,:,:, 4 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, 1], order=i)   
+        result[:,:,:, 5 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, -1], order=i)   
+        result[:,:,:, 6 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, 1], order=i)   
+        result[:,:,:, 7 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, -1], order=i)   
     
     for i in range (0, order):
         decriptor.append(result[centerX, centerY, centerZ, 0 + (i * 8)])
@@ -61,7 +61,7 @@ def loadVideoCube(videoPath):
     for aFile in files: 
         fileSourcePath = os.path.join(videoPath, aFile)
         img = cv2.imread(fileSourcePath, 0)
-        cube[:, :, fileIdx] = img
+        cube[:,:, fileIdx] = img
         
         fileIdx = fileIdx + 1
         if fileIdx + 1 > numLines:
@@ -104,10 +104,15 @@ def getTrainDataFromVideo(tupleArgs):
     order = tupleArgs[4]
     sequenceName = tupleArgs[5]
     datasetRoot = tupleArgs[6]
+    includeCoordinates = tupleArgs[7]
     
     print('Process Feats from ', sequenceName)
     dirFrames = os.path.join(datasetRoot, sequenceName)
-    descriptors = np.zeros((1, 8 * order))
+    if includeCoordinates:
+        descriptors = np.zeros((1, (8 * order) + 2))
+    else:
+        descriptors = np.zeros((1, 8 * order))
+        
     labels = np.zeros(1)
     
     contentGT = None
@@ -118,7 +123,7 @@ def getTrainDataFromVideo(tupleArgs):
     for x in range(0, videoCube.shape[0]-voxelSize, step):
         for y in range(0, videoCube.shape[1]-voxelSize, step):
             for z in range(0, videoCube.shape[2]-timeSize, step):
-                voxelLabel = getCubeLabel(x, y, z, 5, contentGT)
+                voxelLabel = getCubeLabel(x, y, z, 0, contentGT)
 
                 if voxelLabel == 0:
                     ignoreFlag = random.uniform(0.0, 1.0)
@@ -127,6 +132,11 @@ def getTrainDataFromVideo(tupleArgs):
 
                 aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
                 voxelDescriptor = getSTIPDescriptor(aVoxel, order)
+                if includeCoordinates:
+                    normalizedCoordinates = [(float(x) / float(videoCube.shape[0])), (float(y) / float(videoCube.shape[1]))]
+                    coordinateArray = np.array(normalizedCoordinates)
+                    coordinateArray = np.transpose(np.expand_dims(coordinateArray, axis=1))
+                    voxelDescriptor = np.concatenate((voxelDescriptor, coordinateArray), axis=1)
 
                 #print('voxelDescriptor.shape ',voxelDescriptor.shape)
                 descriptors = np.concatenate((descriptors, voxelDescriptor), axis=0)
