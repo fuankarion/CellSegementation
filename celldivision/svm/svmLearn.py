@@ -3,25 +3,31 @@ from sklearn import preprocessing
 from sklearn import svm
 from sklearn.metrics import classification_report
 from sklearn.metrics import f1_score
-
 import sys
 sys.path.append('../')
 from utils import *
 from svmUtil import *
 
 datasetRoot = '/home/jcleon/Storage/ssd1/cellDivision/MouEmbTrkDtb'
-
-step = 20
 numVideos = 50
 
+###Optimal param
+step = 20
+voxelXY = 10
+timeRange = 5
+derivativeOrder = 4
+kernelOpt = 'rbf'
+COpt = 1000
+
+
 dirsTrain, dirsTest = createTrainAndTestSubSets(datasetRoot, numVideos)
-featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, 10, step, 5, 4)
-featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, 10, step, 5, 4)
+featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelXY, step, timeRange, derivativeOrder, True)
+featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelXY, step, timeRange, derivativeOrder, True)
 
 featsTrain = preprocessing.scale(featsTrain)
 featsTest = preprocessing.scale(featsTest)
 
-baseSVM = svm.SVC(kernel='rbf', C=1000, class_weight='balanced')
+baseSVM = svm.SVC(kernel=kernelOpt, C=COpt, class_weight='balanced')
 
 print('Start SVM Train')
 start = time.time()

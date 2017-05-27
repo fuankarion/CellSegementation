@@ -9,7 +9,7 @@ from utils import *
 from svmUtil import *
 
 datasetRoot = '/home/jcleon/Storage/ssd1/cellDivision/MouEmbTrkDtb'
-numVideos=30
+numVideos=100
 
 ###Optimal param
 step = 20
