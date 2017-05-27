@@ -1,4 +1,3 @@
-
 from sklearn import preprocessing
 from sklearn import svm
 from sklearn.metrics import classification_report
@@ -9,7 +8,7 @@ from utils import *
 from svmUtil import *
 
 datasetRoot = '/home/jcleon/Storage/ssd1/cellDivision/MouEmbTrkDtb'
-numVideos = 50
+numVideos = 100
 
 ###Optimal param
 step = 20

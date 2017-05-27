@@ -2,11 +2,12 @@ from sklearn import preprocessing
 from sklearn import svm
 from sklearn.ensemble import BaggingClassifier
 from sklearn.metrics import classification_report
-from sklearn.metrics import f1_score
 import sys
 sys.path.append('../')
 from utils import *
 from svmUtil import *
+from sklearn.externals import joblib
+
 
 datasetRoot = '/home/jcleon/Storage/ssd1/cellDivision/MouEmbTrkDtb'
 numVideos=100
@@ -53,3 +54,4 @@ target_names = ['Background', 'Cell', 'Boundary']
 classificationReport = classification_report(labelsTest, preds, target_names=target_names)
 print(classificationReport)
             
+joblib.dump(clf, '/home/jcleon/Storage/ssd1/cellDivision/models/svmEnsembleCheat.pkl') 
