@@ -30,16 +30,16 @@ def loadVideoCube(videoPath):
 
     sampleImg_ = cv2.imread(os.path.join(videoPath, files[0]), 0)
     
-    x = np.linspace(1,sampleImg_.shape[0],sampleImg_.shape[0])    
-    y = np.linspace(1,sampleImg_.shape[1],sampleImg_.shape[1])        
+    x = np.linspace(1,255,sampleImg_.shape[0])    
+    y = np.linspace(1,255,sampleImg_.shape[1])        
     distx, disty = np.meshgrid(x,y)
 
+    #distx = np.around((distx-distx.min())/(distx.max()-distx.min()))*255
+    #disty = np.around((disty-disty.min())/(disty.max()-disty.min()))*255
+    
     sampleImg = np.zeros((sampleImg_.shape[0],sampleImg_.shape[1],3))
-    sampleImg[:,:,0] = sampleImg_
-    sampleImg[:,:,0] = distx
-    sampleImg[:,:,0] = disty
 
-    cube = np.zeros((sampleImg.shape[0], sampleImg.shape[1],sampleImg.shape[2], numLines), np.int8)
+    cube = np.zeros((sampleImg.shape[0], sampleImg.shape[1],sampleImg.shape[2], numLines), np.uint8)
     fileIdx = 0
     for aFile in files: 
         fileSourcePath = os.path.join(videoPath, aFile)
@@ -49,7 +49,7 @@ def loadVideoCube(videoPath):
         cube[:, :, 2,fileIdx] = disty
       
         fileIdx = fileIdx + 1
-        if fileIdx+1 >numLines:
+        if fileIdx+1 > numLines:
             print('Break at ',fileIdx)
             break
         

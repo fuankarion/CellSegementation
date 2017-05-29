@@ -9,17 +9,19 @@ from keras.layers import Flatten
 from keras.layers import MaxPooling3D
 from keras.models import Sequential
 from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import LearningRateScheduler
 from matplotlib import pyplot as plt
 import numpy as np
-import os
 from sklearn.metrics import classification_report
 import tensorflow as tf
 import random
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
-targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/'
-model_name = 'model1_tol0_time5'
+
+targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/tol0_mesh'
+model_name = 'model_time3_fulldataset'
 
 batch_size = 1024
 num_classes = 3
@@ -27,7 +29,7 @@ epochs = 100
 data_augmentation = False
 
 datapath = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb/'
-numvideos = 30
+numvideos = 100
 numtrain = int(numvideos*0.7)
 numtest = numvideos - numtrain
 
@@ -39,7 +41,7 @@ testvideos = videos[numtrain:numtrain+numtest]
 
 voxelSize = 13
 step = 15
-timeSize = 5
+timeSize = 3
 tol = 0
 
 voxel_array_train = []
@@ -51,9 +53,9 @@ for i in range(0,numtrain):
   for x in range(0, videoCube_train.shape[0]-voxelSize, step):
       print('train_data', x)
       for y in range(0, videoCube_train.shape[1]-voxelSize, step):
-          for z in range(0, videoCube_train.shape[2]-timeSize, step):
+          for z in range(0, videoCube_train.shape[3]-timeSize, step):
               #voxelDescriptor = getSTIPDescriptor(aVoxel)
-              voxelLabel = ca.getCubeLabel(x, y, z, 5, os.path.join(datapath,trainvideos[i]))
+              voxelLabel = ca.getCubeLabel(x, y, z, tol, os.path.join(datapath,trainvideos[i]))
               
               if voxelLabel == 0:
                      ignoreFlag = random.uniform(0.0, 1.0)
@@ -66,7 +68,7 @@ for i in range(0,numtrain):
               #labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
 
 x_train = np.array((voxel_array_train))
-x_train = np.expand_dims(x_train, axis=4)
+#x_train = np.expand_dims(x_train, axis=5)
 y_train = np.array((labels_train))
 y_train = keras.utils.to_categorical(labels_train, num_classes)
 
@@ -80,7 +82,7 @@ for i in range(0,numtest):
   for x in range(0, videoCube_test.shape[0]-voxelSize, step):
       print('test_data', x)
       for y in range(0, videoCube_test.shape[1]-voxelSize, step):
-          for z in range(0, videoCube_test.shape[2]-timeSize, step):         
+          for z in range(0, videoCube_test.shape[3]-timeSize, step):         
               #voxelDescriptor = getSTIPDescriptor(aVoxel)
               voxelLabel = ca.getCubeLabel(x, y, z, tol, os.path.join(datapath,testvideos[i]))
               if voxelLabel == 0:
@@ -94,41 +96,83 @@ for i in range(0,numtest):
               #labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
 
 x_test = np.array((voxel_array_test))
-x_test = np.expand_dims(x_test, axis=4)
+#x_test = np.expand_dims(x_test, axis=5)
 y_test = np.array((labels_test))
 y_test = keras.utils.to_categorical(labels_test, num_classes)
 
 
 model = Sequential()
 
+def step_decay(epoch):
+  lrate = 0.001
+  drop = 0.1
+  if epochs == 75.0:
+    lrate = lrate * drop
+  return lrate
 
-model.add(Conv3D(32, (3, 3, 3), padding='same',
+model.add(Conv3D(16, (1, 1, 1), padding='same',
           input_shape=x_train.shape[1:]))
 model.add(Activation('relu'))
-model.add(Conv3D(32, (3, 3, 3)))
+model.add(Conv3D(16, (3, 3, 3),padding='same'))
 model.add(Activation('relu'))
 model.add(MaxPooling3D(pool_size=(2, 2, 1)))
-model.add(Dropout(0.25))
+#model.add(Dropout(0.5))
 
-model.add(Conv3D(64, (3, 3, 3), padding='same'))
+model.add(Conv3D(16, (1, 1, 1), padding='same'))
 model.add(Activation('relu'))
-model.add(Conv3D(64, (3, 3, 3)))
+model.add(Conv3D(16, (3, 3, 3),padding='same'))
+model.add(Activation('relu'))
+#model.add(MaxPooling3D(pool_size=(2, 2)))#,padding = 'valid'))
+#model.add(Dropout(0.25))
+
+model.add(Conv3D(32, (1, 1, 1), padding='same'))
+model.add(Activation('relu'))
+model.add(Conv3D(32, (3, 3, 3),padding='same'))
+model.add(Activation('relu'))
+#model.add(MaxPooling3D(pool_size=(2, 2, 2)))
+#model.add(Dropout(0.25))
+
+model.add(Conv3D(32, (1, 1, 1), padding='same'))
+model.add(Activation('relu'))
+model.add(Conv3D(32, (3, 3, 3),padding='same'))
 model.add(Activation('relu'))
 model.add(MaxPooling3D(pool_size=(2, 2, 1)))
-model.add(Dropout(0.25))
+#model.add(Dropout(0.25))
+
+model.add(Conv3D(64, (1, 1, 1), padding='same'))
+model.add(Activation('relu'))
+model.add(Conv3D(64, (3, 3, 3),padding='same'))
+model.add(Activation('relu'))
+#model.add(Dropout(0.25))
+
+model.add(Conv3D(64, (1, 1, 1), padding='same'))
+model.add(Activation('relu'))
+model.add(Conv3D(64, (3, 3, 3),padding='same'))
+model.add(Activation('relu'))
+model.add(MaxPooling3D(pool_size=(2, 2, 1)))
+#model.add(Dropout(0.25))
+
+model.add(Conv3D(128, (1, 1, 1), padding='same'))
+model.add(Activation('relu'))
+model.add(Conv3D(128, (3, 3, 3),padding='same'))
+model.add(Activation('relu'))
+#model.add(Dropout(0.5))
 
 model.add(Flatten())
-model.add(Dense(512))
+model.add(Dense(256))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
-opt =keras.optimizers.Adagrad(lr=0.001, epsilon=1e-08, decay=0.0)
+opt =keras.optimizers.Adagrad(lr=0.00, epsilon=1e-08, decay=0.0)
 
 model.compile(loss='categorical_crossentropy',
               optimizer=opt,
               metrics=['accuracy'])
+
+lrate = LearningRateScheduler(step_decay)
+callbacks_list = [lrate]
 
 if not data_augmentation:
     print('Not using data augmentation.')
@@ -136,7 +180,7 @@ if not data_augmentation:
               batch_size=batch_size,
               epochs=epochs,
               validation_data=(x_test, y_test),
-              shuffle=True)
+              shuffle=True,callbacks=callbacks_list)
 else:
     print('Using real-time data augmentation.')
     # This will do preprocessing and realtime data augmentation:
