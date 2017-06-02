@@ -68,7 +68,34 @@ def createEvaluationFold(datasetRoot):
     print('dirsTest ', dirsTest)
     return dirsTrain, dirsVal, dirsTest
  
-def loadSetFromVideos(videoDirs, datasetRoot, voxelSize, step, timeSize, order, includeCoordinate):
+def loadSetFromVideos(videoDirs, datasetRoot, voxelSize, step, timeSize, order, includeCoordinate, tolerance, includeBackground):
+    featsSet = None
+    labelsSet = None
+
+    featCalculationArgs = []
+    for aVideoDir in videoDirs:
+        dirFrames = os.path.join(datasetRoot, aVideoDir)
+        videoCube = loadVideoCube(dirFrames)
+        
+        featCalculationArgs.append((videoCube, voxelSize, step, timeSize, order, aVideoDir, datasetRoot, includeCoordinate, tolerance, includeBackground))
+    
+    print('process feat data')
+    data = processPool.map(getTrainDataFromVideo, featCalculationArgs)
+    
+    print('Unroll feat data')
+    featsSet = None
+    labelsSet = None
+    for aCubeResult in data:
+        if featsSet == None:
+            featsSet = aCubeResult[0]
+            labelsSet = aCubeResult[1]
+        else:
+            featsSet = np.concatenate((featsSet, aCubeResult[0]), axis=0)
+            labelsSet = np.concatenate((labelsSet, aCubeResult[1]), axis=0)
+    return featsSet, labelsSet 
+
+
+def fullSetData(videoDirs, datasetRoot, voxelSize, step, timeSize, order, includeCoordinate):
     featsSet = None
     labelsSet = None
 
@@ -80,7 +107,7 @@ def loadSetFromVideos(videoDirs, datasetRoot, voxelSize, step, timeSize, order, 
         featCalculationArgs.append((videoCube, voxelSize, step, timeSize, order, aVideoDir, datasetRoot, includeCoordinate))
     
     print('process feat data')
-    data = processPool.map(getTrainDataFromVideo, featCalculationArgs)
+    data = processPool.map(fullSetData, featCalculationArgs)
     
     print('Unroll feat data')
     featsSet = None

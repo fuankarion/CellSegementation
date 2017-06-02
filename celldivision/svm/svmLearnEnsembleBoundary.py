@@ -9,21 +9,31 @@ from svmUtil import *
 from sklearn.externals import joblib
 
 datasetRoot = '/home/jcleon/Storage/ssd1/cellDivision/MouEmbTrkDtb'
-numVideos = 100
+numVideos=100
 
 ###Optimal param
 step = 20
-voxelXY = 10
-timeRange = 5
+voxelXY = 5
+timeRange = 1
 derivativeOrder = 4
 kernelOpt = 'rbf'
 COpt = 1000
 
-tolerance = 0
-
 dirsTrain, dirsTest = createTrainAndTestSubSets(datasetRoot, numVideos)
-featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelXY, step, timeRange, derivativeOrder, True, tolerance, True)
-featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelXY, step, timeRange, derivativeOrder, True, tolerance, True)
+featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelXY, step, timeRange, derivativeOrder, True)
+featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelXY, step, timeRange, derivativeOrder, True)
+
+"""
+#Since we want test results
+dirsVal, dirsTest = createEvaluationFold(datasetRoot)
+
+featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelXY, step, timeRange, derivativeOrder)
+featsVal, labelsVal = loadSetFromVideos(dirsVal, datasetRoot, voxelXY, step, timeRange, derivativeOrder)
+featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelXY, step, timeRange, derivativeOrder)
+
+featsTrain = np.concatenate((featsTrain, featsVal), axis=1)
+labelsTrain = np.concatenate((labelsTrain, featsVal), axis=1)
+"""
 
 featsTrain = preprocessing.scale(featsTrain)
 featsTest = preprocessing.scale(featsTest)
