@@ -102,6 +102,7 @@ def addXYCoordinatesToDescriptor(voxelDescriptor, x, y, videoCube):
     voxelDescriptor = np.concatenate((voxelDescriptor, coordinateArray), axis=1)
     return voxelDescriptor
 
+#Pararlel code, tuple is a simple hack    
 def getTrainDataFromVideo(tupleArgs):
     start = time.time()
     videoCube = tupleArgs[0]
@@ -112,7 +113,9 @@ def getTrainDataFromVideo(tupleArgs):
     sequenceName = tupleArgs[5]
     datasetRoot = tupleArgs[6]
     includeCoordinates = tupleArgs[7]
-    
+    tolerance=tupleArgs[8]
+    includeBackground=tupleArgs[9]
+        
     print('Process Feats from ', sequenceName)
     dirFrames = os.path.join(datasetRoot, sequenceName)
     if includeCoordinates:
@@ -130,12 +133,16 @@ def getTrainDataFromVideo(tupleArgs):
     for x in range(0, videoCube.shape[0]-voxelSize, step):
         for y in range(0, videoCube.shape[1]-voxelSize, step):
             for z in range(0, videoCube.shape[2]-timeSize, step):
-                voxelLabel = getCubeLabel(x, y, z, 0, contentGT)
+                voxelLabel = getCubeLabel(x, y, z, tolerance, contentGT)
 
+                
                 if voxelLabel == 0:
-                    ignoreFlag = random.uniform(0.0, 1.0)
-                    if ignoreFlag <= 0.8:
-                        continue
+                    if includeBackground:
+                        ignoreFlag = random.uniform(0.0, 1.0)
+                        if ignoreFlag <= 0.8:
+                            continue
+                    else:
+                        continue                           
 
                 aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
                 voxelDescriptor = getSTIPDescriptor(aVoxel, order)
@@ -145,6 +152,8 @@ def getTrainDataFromVideo(tupleArgs):
                 descriptors = np.concatenate((descriptors, voxelDescriptor), axis=0)
                 labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
     end = time.time()
+    descriptors=np.delete(descriptors, 0, 0)
+    labels=np.delete(labels, 0, 0)
     print('Process Feats Time ', end - start)
     return (descriptors, labels)
     
@@ -158,7 +167,9 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
     order = tupleArgs[4]
     sequenceName = tupleArgs[5]
     datasetRoot = tupleArgs[6]
-    includeCoordinates = tupleArgs[7]
+    includeCoordinates = True
+    tolerance=tupleArgs[7]
+    includeBackground=tupleArgs[8]
     
     print('Process Feats from ', sequenceName)
     dirFrames = os.path.join(datasetRoot, sequenceName)
@@ -181,9 +192,9 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
                 voxelLabel = getCubeLabel(x, y, z, 0, contentGT)
 
                 if voxelLabel == 0:
-                    ignoreFlag = random.uniform(0.0, 1.0)
-                    if ignoreFlag <= 0.8:
+                    if not includeBackground:
                         continue
+   
 
                 aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
                 voxelDescriptor = getSTIPDescriptor(aVoxel, order)
