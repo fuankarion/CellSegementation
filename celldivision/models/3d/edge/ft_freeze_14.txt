@@ -1,0 +1,17 @@
+Parameters: 
+ Voxel_size: 13 timeSize 2 Step: 15 tol: 5 Freeze: 14
+ NumTrainSamples: 134841 NumTestSamples: 58547 NumVideos: 50
+ loss_train: 0.334990937184 Acc_train: 0.872027054208
+ loss_test: 0.343159986019 Acc_test: 0.868276769146
+ Epochs: 100
+ Batch Size: 1024
+ Train Time: 756.168485165
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+       Cell       0.88      0.96      0.92     45396
+   Boundary       0.79      0.57      0.66     13151
+
+avg / total       0.86      0.87      0.86     58547
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/edge/ft_freeze_14.h5

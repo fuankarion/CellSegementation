@@ -1,0 +1,17 @@
+Parameters: 
+ Voxel_size: 15 Step: 15 tol: 0
+ NumTrainSamples: 249037 NumTestSamples: 107383 NumVideos: 50
+ loss_train: 0.29547821194 Acc_train: 0.881816757964
+ loss_test: 0.270701177487 Acc_test: 0.895113751474
+ Epochs: 100
+ Batch_size: 8192
+ Training Time: 387.195714951
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+ Background       0.95      0.84      0.89     54278
+       Cell       0.85      0.96      0.90     53105
+
+avg / total       0.90      0.90      0.89    107383
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/vsize_experiments/patch15.h5
