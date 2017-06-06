@@ -18,18 +18,19 @@ from sklearn.metrics import classification_report
 import tensorflow as tf
 import random
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/edge/'
-model_name = 'ft_freeze_32'
-model_path = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize/model_time2_fulldataset.h5'
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+
+targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/edge/'
+model_name = 'data_augmentation_freezeconv_19_2D'
+model_path = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/tol0_mesh/model_patch13_step_fulldataset.h5'
 
 batch_size = 1024
 num_classes = 3
 epochs = 100
-freeze = 32
-data_augmentation = False
+freeze = 19
+data_augmentation = True
 
-datapath = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb/'
+datapath = '/home/lapardo/SSD/alejo/MouEmbTrkDtb/'
 numvideos = 50
 numtrain = int(numvideos*0.7)
 numtest = numvideos - numtrain
@@ -68,6 +69,7 @@ for i in range(0,numtrain):
               #labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
 
 x_train = np.array((voxel_array_train))
+#x_train = np.squeeze(x_train)
 #x_train = np.expand_dims(x_train, axis=5)
 y_train = np.array((labels_train))
 y_train = keras.utils.to_categorical(labels_train, num_classes)
@@ -94,6 +96,7 @@ for i in range(0,numtest):
               #labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
 
 x_test = np.array((voxel_array_test))
+#x_train = np.squeeze(x_train)
 #x_test = np.expand_dims(x_test, axis=5)
 y_test = np.array((labels_test))
 y_test = keras.utils.to_categorical(labels_test, num_classes)
@@ -130,11 +133,11 @@ else:
                                  featurewise_std_normalization=False, # divide inputs by std of the dataset
                                  samplewise_std_normalization=False, # divide each input by its std
                                  zca_whitening=False, # apply ZCA whitening
-                                 rotation_range=0, # randomly rotate images in the range (degrees, 0 to 180)
+                                 rotation_range=180, # randomly rotate images in the range (degrees, 0 to 180)
                                  width_shift_range=0.1, # randomly shift images horizontally (fraction of total width)
                                  height_shift_range=0.1, # randomly shift images vertically (fraction of total height)
                                  horizontal_flip=True, # randomly flip images
-                                 vertical_flip=False) # randomly flip images
+                                 vertical_flip=True) # randomly flip images
     datagen.fit(x_train)
     
     model.fit_generator(datagen.flow(x_train, y_train,
