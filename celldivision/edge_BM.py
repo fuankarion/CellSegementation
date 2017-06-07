@@ -9,6 +9,7 @@ from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import Flatten
 from keras.layers import MaxPooling3D
+from keras.layers import BatchNormalization
 from keras.models import Sequential
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import LearningRateScheduler
@@ -19,9 +20,9 @@ import tensorflow as tf
 import random
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/edge/'
-model_name = 'BatchNorm'
+model_name = 'BatchNorm_fulldataset'
 model_path = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize/model_time2_fulldataset.h5'
 
 batch_size = 1024
@@ -31,7 +32,7 @@ freeze = 32
 data_augmentation = False
 
 datapath = '/home/lapardo/SSD/alejo/MouEmbTrkDtb/'
-numvideos = 50
+numvideos = 100
 numtrain = int(numvideos*0.7)
 numtest = numvideos - numtrain
 
@@ -111,49 +112,63 @@ def step_decay(epoch):
 model.add(Conv3D(16, (1, 1, 1), padding='same',
           input_shape=x_train.shape[1:]))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(Conv3D(16, (3, 3, 3),padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(MaxPooling3D(pool_size=(2, 2, 1)))
 #model.add(Dropout(0.5))
 
 model.add(Conv3D(16, (1, 1, 1), padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(Conv3D(16, (3, 3, 3),padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 #model.add(MaxPooling3D(pool_size=(2, 2)))#,padding = 'valid'))
 #model.add(Dropout(0.25))
 
 model.add(Conv3D(32, (1, 1, 1), padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(Conv3D(32, (3, 3, 3),padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 #model.add(MaxPooling3D(pool_size=(2, 2, 2)))
 #model.add(Dropout(0.25))
 
 model.add(Conv3D(32, (1, 1, 1), padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(Conv3D(32, (3, 3, 3),padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(MaxPooling3D(pool_size=(2, 2, 1)))
 #model.add(Dropout(0.25))
 
 model.add(Conv3D(64, (1, 1, 1), padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(Conv3D(64, (3, 3, 3),padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 #model.add(Dropout(0.25))
 
 model.add(Conv3D(64, (1, 1, 1), padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(Conv3D(64, (3, 3, 3),padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(MaxPooling3D(pool_size=(2, 2, 1)))
 #model.add(Dropout(0.25))
 
 model.add(Conv3D(128, (1, 1, 1), padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 model.add(Conv3D(128, (3, 3, 3),padding='same'))
 model.add(Activation('relu'))
+model.add(BatchNormalization(axis = 4))
 #model.add(Dropout(0.5))
 
 model.add(Flatten())
@@ -163,7 +178,7 @@ model.add(Dropout(0.5))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
-model.load_weights('/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize/weights_time2_fulldataset.h5')
+model.load_weights('/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize/weights_time2_fulldataset.h5',by_name=True)
 
 opt =keras.optimizers.Adagrad(lr=0.001, epsilon=1e-08, decay=0.001)
 model.compile(loss='categorical_crossentropy',
@@ -212,6 +227,7 @@ class_weight = {0 : 0,
 """
 classes = model.predict(x_test, batch_size=64)
 y_pred = []
+
 for i in range(classes.shape[0]):
     y_pred.append(np.argmax(classes[i, :]))
 y_pred = np.array((y_pred))
