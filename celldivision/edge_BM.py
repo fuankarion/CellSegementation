@@ -22,7 +22,7 @@ import os
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/edge/'
-model_name = 'BatchNorm_fulldataset'
+model_name = 'BatchNorm_scratch'
 model_path = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize/model_time2_fulldataset.h5'
 
 batch_size = 1024
@@ -32,7 +32,7 @@ freeze = 32
 data_augmentation = False
 
 datapath = '/home/lapardo/SSD/alejo/MouEmbTrkDtb/'
-numvideos = 100
+numvideos = 30
 numtrain = int(numvideos*0.7)
 numtest = numvideos - numtrain
 
@@ -178,7 +178,7 @@ model.add(Dropout(0.5))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
-model.load_weights('/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize/weights_time2_fulldataset.h5',by_name=True)
+#model.load_weights('/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize/weights_time2_fulldataset.h5',by_name=True)
 
 opt =keras.optimizers.Adagrad(lr=0.001, epsilon=1e-08, decay=0.001)
 model.compile(loss='categorical_crossentropy',
