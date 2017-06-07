@@ -225,6 +225,7 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
     print('Process Feats Time ', end - start)
     return (descriptors, labels, spatialInfo)
     
-
+"""
 label = getFrameStageLabel('/home/jcleon/Storage/ssd0/cellDivision/MouEmbTrkDtb/', 'E90', 228)
 print('Label ', label)
+"""
