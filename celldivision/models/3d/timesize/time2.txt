@@ -1,0 +1,17 @@
+Parameters: 
+ Voxel_size: 13 timeSize 2 Step: 15 tol: 0
+ NumTrainSamples: 258294 NumTestSamples: 111239 NumVideos: 50
+ loss_train: 0.0781477221944 Acc_train: 0.973638566848
+ loss_test: 0.104138807464 Acc_test: 0.96550670144
+ Epochs: 100
+ Batch Size: 1024
+ Train Time: 1978.96836114
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+ Background       0.97      0.96      0.97     58134
+       Cell       0.96      0.97      0.96     53105
+
+avg / total       0.97      0.97      0.97    111239
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize/time2.h5

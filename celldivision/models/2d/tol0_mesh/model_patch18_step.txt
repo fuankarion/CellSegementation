@@ -1,0 +1,15 @@
+Parameters: 
+ Voxel_size: 18 Step: 15 tol: 0
+ NumTrainSamples: 149880 NumTestSamples: 65053 NumVideos: 30
+ loss_train: 0.119943126395 Acc_train: 0.961335733276
+ loss_test: 0.151780185222 Acc_test: 0.947888655996
+ Epochs: 100
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+ Background       0.95      0.94      0.95     33160
+       Cell       0.94      0.95      0.95     31893
+
+avg / total       0.95      0.95      0.95     65053
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/tol0_mesh/model_patch18_step.h5

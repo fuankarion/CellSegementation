@@ -1,0 +1,17 @@
+Parameters: 
+ Voxel_size: 19 Step: 15 tol: 0
+ NumTrainSamples: 249125 NumTestSamples: 107523 NumVideos: 50
+ loss_train: 0.124822983934 Acc_train: 0.95927345915
+ loss_test: 0.121179955901 Acc_test: 0.95998065543
+ Epochs: 100
+ Batch_size: 8192
+ Training Time: 1237.67115712
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+ Background       0.97      0.95      0.96     54418
+       Cell       0.95      0.97      0.96     53105
+
+avg / total       0.96      0.96      0.96    107523
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/vsize_experiments/patch19_xy.h5
