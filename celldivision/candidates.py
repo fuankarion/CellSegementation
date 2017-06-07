@@ -87,3 +87,20 @@ def getCubeLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, pathG
                         label = 2
                         
         return label
+
+def getStageLabel(pathGT):
+    label = 0 #Una celula
+    labels = []
+    pathGT = os.path.join(pathGT, '_trajectories.txt')
+    with open(pathGT) as f:
+        content = np.loadtxt(f)
+    for n in range(0,len(content)-1):
+        if (content[n][3:21] == 0).all() == True: 
+            labels.append(label + 1)
+        elif (content[n][0:3] == 0).all() == True and (content[n][9:21] == 0).all() == True:     
+            labels.append(label + 2)
+        elif (content[n][0:9] == 0).all() == True:
+            labels.append(label + 3)
+        else:
+            labels.append(label)
+    return labels

@@ -16,12 +16,11 @@ from sklearn.metrics import classification_report
 import tensorflow as tf
 import random
 import os
+
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
-
-
-targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/tol0_mesh'
-model_name = 'model_time3_fulldataset'
+targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize'
+model_name = 'model_time2_fulldataset'
 
 batch_size = 1024
 num_classes = 3
@@ -41,7 +40,7 @@ testvideos = videos[numtrain:numtrain+numtest]
 
 voxelSize = 13
 step = 15
-timeSize = 3
+timeSize = 2
 tol = 0
 
 voxel_array_train = []

@@ -1,5 +1,6 @@
 from __future__ import print_function
 import candidates as ca
+import time
 import keras
 from keras.layers import Activation
 from keras.layers import Conv2D
@@ -19,16 +20,17 @@ import random
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
-targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/tol0_mesh/'
-model_name = 'model_patch13_step_fulldataset'
+targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/vsize_experiments/'
+model_name = 'patch15_xy'
+weights_path = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/vsize_experiments/'
 
-batch_size = 8192/2
+batch_size = 8192
 num_classes = 3
 epochs = 100
 data_augmentation = False
 
 datapath = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb/'
-numvideos = 100
+numvideos = 50
 numtrain = int(numvideos*0.7)
 numtest = numvideos - numtrain
 
@@ -38,7 +40,7 @@ videos = videos[0:numvideos]
 trainvideos = videos[0:numtrain]
 testvideos = videos[numtrain:numtrain+numtest]
 
-voxelSize = 13
+voxelSize = 15
 step = 15
 timeSize = 1
 tol = 0
@@ -69,6 +71,7 @@ for i in range(0,numtrain):
 
 x_train = np.array((voxel_array_train))
 x_train = np.squeeze(x_train)
+#x_train = x_train[:,:,:,0:1]
 y_train = np.array((labels_train))
 y_train = keras.utils.to_categorical(labels_train, num_classes)
 
@@ -97,6 +100,7 @@ for i in range(0,numtest):
 
 x_test = np.array((voxel_array_test))
 x_test = np.squeeze(x_test)
+#x_test = x_test[:,:,:,0:1]
 y_test = np.array((labels_test))
 y_test = keras.utils.to_categorical(labels_test, num_classes)
 
@@ -176,11 +180,17 @@ callbacks_list = [lrate]
 
 if not data_augmentation:
     print('Not using data augmentation.')
+    print('Start Training')
+    start = time.time()
     model.fit(x_train, y_train,
               batch_size=batch_size,
               epochs=epochs,
               validation_data=(x_test, y_test),
               shuffle=True,callbacks=callbacks_list)
+    end = time.time()
+    elapsed_time = end-start
+    print('Train time', elapsed_time)
+
 else:
     print('Using real-time data augmentation.')
     # This will do preprocessing and realtime data augmentation:
@@ -214,7 +224,7 @@ print(classificationReport)
 metrics_train = model.evaluate(x_train,y_train,batch_size=batch_size)
 metrics_test = model.evaluate(x_test,y_test,batch_size=batch_size)
 
-model.save(os.path.join(targetdir,model_name +'.h5'))
+#model.save(os.path.join(targetdir,model_name +'.h5'))
 with open (os.path.join(targetdir,model_name + '.txt'),'w') as f:
   f.write('Parameters: \n Voxel_size: ' + str(voxelSize) + ' Step: ' + str(step) + ' tol: ' + str(tol) + '\n'
     + ' NumTrainSamples: '  + str(len(voxel_array_train)) 
@@ -222,6 +232,9 @@ with open (os.path.join(targetdir,model_name + '.txt'),'w') as f:
     + ' NumVideos: ' + str(numvideos) +'\n'
     + ' loss_train: ' + str(metrics_train[0]) + ' Acc_train: ' + str(metrics_train[1]) +'\n'
     + ' loss_test: ' + str(metrics_test[0]) + ' Acc_test: ' + str(metrics_test[1]) +'\n'
-    + ' Epochs: ' + str(epochs)   +'\n' 
+    + ' Epochs: ' + str(epochs)   + '\n'
+    + ' Batch_size: ' + str(batch_size) + '\n' 
+    + ' Training Time: ' + str(elapsed_time) + '\n'
     + ' Classification_Report: \n' + classificationReport + '\n'
     + ' Model_dir: ' + os.path.join(targetdir,model_name + '.h5'))
+
