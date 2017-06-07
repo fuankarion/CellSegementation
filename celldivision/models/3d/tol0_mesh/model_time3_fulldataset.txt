@@ -1,0 +1,15 @@
+Parameters: 
+ Voxel_size: 13 timeSize 3 Step: 15 tol: 0
+ NumTrainSamples: 521440 NumTestSamples: 218742 NumVideos: 100
+ loss_train: 0.0679377828715 Acc_train: 0.978294722307
+ loss_test: 0.103850398934 Acc_test: 0.968515419993
+ Epochs: 100
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+ Background       0.97      0.97      0.97    114451
+       Cell       0.97      0.97      0.97    104291
+
+avg / total       0.97      0.97      0.97    218742
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/tol0_mesh/model_time3_fulldataset.h5

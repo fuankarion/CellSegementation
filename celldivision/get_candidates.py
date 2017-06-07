@@ -35,7 +35,7 @@ def get_candidates(voxelSize,step,timeSize,tol,numvideos = 30):
 	      for y in range(0, videoCube_train.shape[1]-voxelSize, step):
 	          for z in range(0, videoCube_train.shape[2]-timeSize, step):
 	              #voxelDescriptor = getSTIPDescriptor(aVoxel)
-	              voxelLabel = ca.getCubeLabel(x, y, z, 5, os.path.join(datapath,trainvideos[i]))
+	              voxelLabel = ca.getCubeLabel(x, y, z, tol, os.path.join(datapath,trainvideos[i]))
 	              
 	              if voxelLabel == 0:
 	                     ignoreFlag = random.uniform(0.0, 1.0)

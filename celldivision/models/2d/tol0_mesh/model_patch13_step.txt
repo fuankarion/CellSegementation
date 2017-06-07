@@ -1,0 +1,15 @@
+Parameters: 
+ Voxel_size: 13 Step: 15 tol: 0
+ NumTrainSamples: 155729 NumTestSamples: 67227 NumVideos: 30
+ loss_train: 0.206241499164 Acc_train: 0.934270431352
+ loss_test: 0.23990078888 Acc_test: 0.91735463271
+ Epochs: 100
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+ Background       0.93      0.91      0.92     35334
+       Cell       0.90      0.93      0.91     31893
+
+avg / total       0.92      0.92      0.92     67227
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/tol0_mesh/model_patch13_step.h5

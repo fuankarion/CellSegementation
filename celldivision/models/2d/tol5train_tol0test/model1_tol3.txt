@@ -1,0 +1,16 @@
+Parameters: 
+ Voxel_size: 15 Step: 15 tol: 3
+ NumTrainSamples: 155625 NumTestSamples: 66352 NumVideos: 30
+ loss_train: 0.502286093566 Acc_train: 0.81064738035
+ loss_test: 0.476703786763 Acc_test: 0.827480710125
+ Epochs: 100
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+ Background       0.97      0.79      0.87     32460
+       Cell       0.77      0.95      0.85     29103
+   Boundary       0.42      0.34      0.38      4789
+
+avg / total       0.84      0.83      0.83     66352
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/model1_tol5.h5
