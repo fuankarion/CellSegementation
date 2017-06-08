@@ -9,15 +9,12 @@ from sklearn.externals import joblib
 from sklearn.metrics import classification_report
 import scipy.misc
 
-datasetRoot = '/home/jcleon/Storage/ssd1/cellDivision/MouEmbTrkDtb'
-videosTest = ['E00', 'E03', 'E04', 'E10', 'E13', 'E15', 'E32', 'E33', 'E34', 
-'E36', 'E37', 'E38', 'E39', 'E48', 'E52', 'E64', 'E66', 'E68', 'E70', 'E76', 
-'E80', 'E81', 'E87', 'E89', 'E91', 'E94', 'E95', 'E96', 'E99']
+datasetRoot = '/home/jcleon/Storage/ssd0/cellDivision/MouEmbTrkDtb'
+videosTest =  ['E01', 'E03', 'E11', 'E19', 'E21', 'E25', 'E26', 'E30', 'E31', 'E39', 'E40', 'E41', 'E45', 'E53', 'E57', 'E60', 'E61', 'E65', 'E66', 'E69', 'E70', 'E75', 'E81', 'E89', 'E90', 'E91', 'E92', 'E94', 'E98']
 
-targetRoot = '/home/jcleon/Storage/ssd1/cellDivision/segmentations'
-classifierDump = '/home/jcleon/Storage/ssd1/cellDivision/models/svmEnsembleCheat.pkl'
+targetRoot = '/home/jcleon/Storage/ssd0/cellDivision/segmentations'
+classifierDump = '/home/jcleon/Storage/ssd0/cellDivision/models/svmEnsembleCheat.pkl'
 clf = joblib.load(classifierDump)
-
 
 ###Optimal param
 voxelXY = 10
@@ -53,11 +50,11 @@ for dataIdx in range(0, len(spatialInfo)):
     aVoxelCoordinate[1]-(step / 2):aVoxelCoordinate[1] + (step / 2), 
     aVoxelCoordinate[2]-(timeRange / 2):aVoxelCoordinate[2] + (timeRange / 2)] = int(preds[dataIdx] * 255)
     
-    print('[aVoxelCoordinate[0]-(voxelXY / 2):aVoxelCoordinate[0] + (voxelXY / 2)', aVoxelCoordinate[0]-(voxelXY / 2), aVoxelCoordinate[0] + (voxelXY / 2))
-    print('[aVoxelCoordinate[1]-(voxelXY / 2):aVoxelCoordinate[1] + (voxelXY / 2)', aVoxelCoordinate[1]-(voxelXY / 2), aVoxelCoordinate[1] + (voxelXY / 2))
-    print('[aVoxelCoordinate[2]-(voxelXY / 2):aVoxelCoordinate[2] + (voxelXY / 2)', aVoxelCoordinate[2]-(timeRange / 2), aVoxelCoordinate[2] + (timeRange / 2))
+    #print('[aVoxelCoordinate[0]-(voxelXY / 2):aVoxelCoordinate[0] + (voxelXY / 2)', aVoxelCoordinate[0]-(voxelXY / 2), aVoxelCoordinate[0] + (voxelXY / 2))
+    #print('[aVoxelCoordinate[1]-(voxelXY / 2):aVoxelCoordinate[1] + (voxelXY / 2)', aVoxelCoordinate[1]-(voxelXY / 2), aVoxelCoordinate[1] + (voxelXY / 2))
+    #print('[aVoxelCoordinate[2]-(voxelXY / 2):aVoxelCoordinate[2] + (voxelXY / 2)', aVoxelCoordinate[2]-(timeRange / 2), aVoxelCoordinate[2] + (timeRange / 2))
    
-    print('reds[dataIdx] * 255 ',preds[dataIdx] * 255)
+    #print('reds[dataIdx] * 255 ',preds[dataIdx] * 255)
         
 imageIdx = 0
 for imageSliceIdx in range(0, segmentationMask.shape[2]):

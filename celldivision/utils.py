@@ -149,7 +149,7 @@ def getTrainDataFromVideo(tupleArgs):
         
     for x in range(0, videoCube.shape[0]-voxelSize, step):
         for y in range(0, videoCube.shape[1]-voxelSize, step):
-            for z in range(0, videoCube.shape[2]-timeSize, step):
+            for z in range(0, videoCube.shape[2]-timeSize, 1):
                 voxelLabel = getCubeLabel(x, y, z, tolerance, contentGT)
 
                 
@@ -185,7 +185,6 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
     sequenceName = tupleArgs[5]
     datasetRoot = tupleArgs[6]
     includeCoordinates = True
-    tolerance = tupleArgs[7]
     includeBackground = tupleArgs[8]
     
     print('Process Feats from ', sequenceName)
@@ -204,15 +203,16 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
         contentGT = f.readlines()
         
     for x in range(0, videoCube.shape[0]-voxelSize, step):
+        print('sequenceName ',sequenceName,' x ',x)
         for y in range(0, videoCube.shape[1]-voxelSize, step):
-            for z in range(0, videoCube.shape[2]-timeSize, step):
+            #for z in range(0, videoCube.shape[2]-timeSize, step):
+            for z in range(0, 10, 1):
                 voxelLabel = getCubeLabel(x, y, z, 0, contentGT)
 
                 if voxelLabel == 0:
                     if not includeBackground:
                         continue
    
-
                 aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
                 voxelDescriptor = getSTIPDescriptor(aVoxel, order)
                 if includeCoordinates:

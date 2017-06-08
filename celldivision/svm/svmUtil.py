@@ -77,7 +77,7 @@ def loadSetFromVideos(videoDirs, datasetRoot, voxelSize, step, timeSize, order, 
         dirFrames = os.path.join(datasetRoot, aVideoDir)
         videoCube = loadVideoCube(dirFrames)
         
-        featCalculationArgs.append((videoCube, voxelSize, step, timeSize, order, aVideoDir, datasetRoot, includeCoordinate, tolerance, includeBackground))
+        featCalculationArgs.append( (videoCube, voxelSize, step, timeSize, order, aVideoDir, datasetRoot, includeCoordinate, tolerance, includeBackground) )
     
     print('process feat data')
     data = processPool.map(getTrainDataFromVideo, featCalculationArgs)
