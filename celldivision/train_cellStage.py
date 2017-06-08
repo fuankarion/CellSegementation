@@ -1,6 +1,8 @@
 from candidates import getStageLabel
 import os
 import cv2
+import re
+
 
 def natural_key(string_):
     """See http://www.codinghorror.com/blog/archives/001018.html"""
@@ -11,15 +13,17 @@ dataset = os.listdir('/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb/')
 videos = sorted(dataset,key=natural_key)
 frame_array_train = []
 label_array_train = []
-
+with open(pathGT) as f:
+        content = np.loadtxt(f)
 for video in dataset: 
 	print('Video ' + video + ' from ' +str(len(dataset)))
 	frames = os.listdir(os.path.join(pathGT	,video))
 	frames = sorted(frames,key=natural_key)
+	frames = frames[0:len(content)]
+	labels = getStageLabel(os.path.join(pathGT,video))
 	for frame in frames:
 		print('Frame ' + frame + ' from ' +str(len(frames)))
 		if os.path.join(pathGT,video,frame).endswith('png'):
 			im = cv2.imread(os.path.join(pathGT,video,frame))
-			labels = getStageLabel(os.path.join(pathGT,video))
-	frame_array_train.append(im)
+		frame_array_train.append(im)
 	label_array_train.append(labels)
