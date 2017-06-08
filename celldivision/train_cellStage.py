@@ -9,16 +9,17 @@ def natural_key(string_):
     return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]	
 
 pathGT = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb/'
-dataset = os.listdir('/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb/')
+dataset = os.listdir(pathGT)
 videos = sorted(dataset,key=natural_key)
 frame_array_train = []
 label_array_train = []
-with open(pathGT) as f:
-        content = np.loadtxt(f)
 for video in dataset: 
 	print('Video ' + video + ' from ' +str(len(dataset)))
 	frames = os.listdir(os.path.join(pathGT	,video))
 	frames = sorted(frames,key=natural_key)
+	pathL = os.path.join(pathGT,video, '_trajectories.txt')
+	with open(pathL) as f:
+        content = np.loadtxt(f)
 	frames = frames[0:len(content)]
 	labels = getStageLabel(os.path.join(pathGT,video))
 	for frame in frames:
