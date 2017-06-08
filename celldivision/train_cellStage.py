@@ -2,7 +2,7 @@ from candidates import getStageLabel
 import os
 import cv2
 import re
-
+import numpy as np
 
 def natural_key(string_):
     """See http://www.codinghorror.com/blog/archives/001018.html"""
@@ -27,4 +27,8 @@ for video in dataset:
 		if os.path.join(pathGT,video,frame).endswith('png'):
 			im = cv2.imread(os.path.join(pathGT,video,frame))
 		frame_array_train.append(im)
-	label_array_train.append(labels)
+	label_array.append(labels)
+
+label_array_train = []
+for video_labels in label_array_train:
+	label_array_train = np.concatenate((label_array_train,video_labels))
