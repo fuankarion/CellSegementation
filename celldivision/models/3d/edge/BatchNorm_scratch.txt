@@ -1,0 +1,17 @@
+Parameters: 
+ Voxel_size: 13 timeSize 2 Step: 15 tol: 5 Freeze: 32
+ NumTrainSamples: 81097 NumTestSamples: 35144 NumVideos: 30
+ loss_train: 0.293738207527 Acc_train: 0.886037707834
+ loss_test: 0.475290713049 Acc_test: 0.825261779291
+ Epochs: 100
+ Batch Size: 1024
+ Train Time: 944.049201965
+ Classification_Report: 
+             precision    recall  f1-score   support
+
+       Cell       0.85      0.94      0.89     27206
+   Boundary       0.67      0.44      0.53      7938
+
+avg / total       0.81      0.83      0.81     35144
+
+ Model_dir: /home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/edge/BatchNorm_scratch.h5

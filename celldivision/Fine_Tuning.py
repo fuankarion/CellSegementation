@@ -18,19 +18,33 @@ from sklearn.metrics import classification_report
 import tensorflow as tf
 import random
 import os
+<<<<<<< HEAD
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/edge/'
+model_name = 'ft_freeze_32'
+model_path = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize/model_time2_fulldataset.h5'
+=======
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 
 targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/edge/'
 model_name = 'data_augmentation_freezeconv_19_2D'
 model_path = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/tol0_mesh/model_patch13_step_fulldataset.h5'
+>>>>>>> e6b26a31608a4e7f58e8f9358c27b1d5c1382180
 
 batch_size = 1024
 num_classes = 3
 epochs = 100
+<<<<<<< HEAD
+freeze = 32
+data_augmentation = False
+
+datapath = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb/'
+=======
 freeze = 19
 data_augmentation = True
 
 datapath = '/home/lapardo/SSD/alejo/MouEmbTrkDtb/'
+>>>>>>> e6b26a31608a4e7f58e8f9358c27b1d5c1382180
 numvideos = 50
 numtrain = int(numvideos*0.7)
 numtest = numvideos - numtrain
@@ -69,7 +83,10 @@ for i in range(0,numtrain):
               #labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
 
 x_train = np.array((voxel_array_train))
+<<<<<<< HEAD
+=======
 #x_train = np.squeeze(x_train)
+>>>>>>> e6b26a31608a4e7f58e8f9358c27b1d5c1382180
 #x_train = np.expand_dims(x_train, axis=5)
 y_train = np.array((labels_train))
 y_train = keras.utils.to_categorical(labels_train, num_classes)
@@ -96,7 +113,10 @@ for i in range(0,numtest):
               #labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
 
 x_test = np.array((voxel_array_test))
+<<<<<<< HEAD
+=======
 #x_train = np.squeeze(x_train)
+>>>>>>> e6b26a31608a4e7f58e8f9358c27b1d5c1382180
 #x_test = np.expand_dims(x_test, axis=5)
 y_test = np.array((labels_test))
 y_test = keras.utils.to_categorical(labels_test, num_classes)
@@ -110,6 +130,8 @@ opt =keras.optimizers.Adagrad(lr=0.001, epsilon=1e-08, decay=0.001)
 model.compile(loss='categorical_crossentropy',
               optimizer=opt,
               metrics=['accuracy'])
+<<<<<<< HEAD
+=======
 
 if not data_augmentation:
 
@@ -146,11 +168,26 @@ else:
                         epochs=epochs,
                         validation_data=(x_test, y_test))
 
+>>>>>>> e6b26a31608a4e7f58e8f9358c27b1d5c1382180
 """
 class_weight = {0 : 0,
     1: 50.,
     2: 1.}
 """
+<<<<<<< HEAD
+print('Start Training')
+start = time.time()
+model.fit(x_train, y_train,
+          batch_size=batch_size,
+          epochs=epochs,
+          validation_data=(x_test, y_test),
+          shuffle=True)#,class_weight = class_weight)
+end = time.time()
+elapsed_time = end-start
+print('Train time', elapsed_time)
+
+=======
+>>>>>>> e6b26a31608a4e7f58e8f9358c27b1d5c1382180
 classes = model.predict(x_test, batch_size=64)
 y_pred = []
 for i in range(classes.shape[0]):
