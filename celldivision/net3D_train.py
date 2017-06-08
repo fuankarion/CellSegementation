@@ -17,17 +17,17 @@ import tensorflow as tf
 import random
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 
-targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/3d/timesize'
-model_name = 'model_time2_fulldataset'
+targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/'
+model_name = 'model_goodStep'
 
 batch_size = 1024
 num_classes = 3
 epochs = 100
 data_augmentation = False
 
-datapath = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb/'
+datapath = '/home/lapardo/SSD/alejo/MouEmbTrkDtb/'
 numvideos = 100
 numtrain = int(numvideos*0.7)
 numtest = numvideos - numtrain
@@ -39,7 +39,7 @@ trainvideos = videos[0:numtrain]
 testvideos = videos[numtrain:numtrain+numtest]
 
 voxelSize = 13
-step = 15
+step = 13
 timeSize = 2
 tol = 0
 
@@ -52,7 +52,7 @@ for i in range(0,numtrain):
   for x in range(0, videoCube_train.shape[0]-voxelSize, step):
       print('train_data', x)
       for y in range(0, videoCube_train.shape[1]-voxelSize, step):
-          for z in range(0, videoCube_train.shape[3]-timeSize, step):
+          for z in range(0, videoCube_train.shape[3]-timeSize, 1):
               #voxelDescriptor = getSTIPDescriptor(aVoxel)
               voxelLabel = ca.getCubeLabel(x, y, z, tol, os.path.join(datapath,trainvideos[i]))
               
