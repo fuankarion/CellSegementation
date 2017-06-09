@@ -74,14 +74,14 @@ def loadVideoCube(videoPath):
 def getVoxelFromVideoCube(videoCube, startX, startY, startZ, size, timeSize):
     return  videoCube[startX:startX + size, startY:startY + size, startZ:startZ + timeSize]
    
-def getCubeLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, contentGT):
+def getVoxelLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, contentGT):
     gtLine = contentGT[centerCubeZ]
     tokens = gtLine.split('\t')
     label = 0
 
     for tokensIdx in range(0, len(tokens)-3, 3):
         if int(tokens[tokensIdx + 2]) > 0:#Cell candidate
-            centroidAnnotation = np.array([int(tokens[tokensIdx]), int(tokens[tokensIdx + 1])])
+            centroidAnnotation = np.array([int(tokens[tokensIdx+1]), int(tokens[tokensIdx])])
             cubeCenter = np.array([centerCubeX, centerCubeY])
             dist = euclidenaDistance(centroidAnnotation, cubeCenter)
             if dist < (int(tokens[tokensIdx + 2]) + boundaryTolerance):#Is inside
@@ -150,9 +150,8 @@ def getTrainDataFromVideo(tupleArgs):
     for x in range(0, videoCube.shape[0]-voxelSize, step):
         for y in range(0, videoCube.shape[1]-voxelSize, step):
             for z in range(0, videoCube.shape[2]-timeSize, 1):
-                voxelLabel = getCubeLabel(x, y, z, tolerance, contentGT)
+                voxelLabel = getVoxelLabel(x, y, z, tolerance, contentGT)
 
-                
                 if voxelLabel == 0:
                     if includeBackground:
                         ignoreFlag = random.uniform(0.0, 1.0)
@@ -179,11 +178,12 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
     start = time.time()
     videoCube = tupleArgs[0]
     voxelSize = tupleArgs[1]
+    timeSize = tupleArgs[2]
     step = tupleArgs[2]
-    timeSize = tupleArgs[3]
-    order = tupleArgs[4]
-    sequenceName = tupleArgs[5]
-    datasetRoot = tupleArgs[6]
+    timeStep = tupleArgs[3]
+    order = tupleArgs[5]
+    sequenceName = tupleArgs[6]
+    datasetRoot = tupleArgs[7]
     includeCoordinates = True
     includeBackground = tupleArgs[8]
     
@@ -205,9 +205,8 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
     for x in range(0, videoCube.shape[0]-voxelSize, step):
         print('sequenceName ',sequenceName,' x ',x)
         for y in range(0, videoCube.shape[1]-voxelSize, step):
-            #for z in range(0, videoCube.shape[2]-timeSize, step):
-            for z in range(0, 10, 1):
-                voxelLabel = getCubeLabel(x, y, z, 0, contentGT)
+            for z in range(0, videoCube.shape[2]-timeSize, timeStep):
+                voxelLabel = getVoxelLabel(x, y, z, 0, contentGT)
 
                 if voxelLabel == 0:
                     if not includeBackground:

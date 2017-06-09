@@ -18,7 +18,7 @@ clf = joblib.load(classifierDump)
 
 ###Optimal param
 voxelXY = 10
-step = voxelXY/2
+step = voxelXY
 timeRange = 5
 derivativeOrder = 4
 tolerance = 0
@@ -34,6 +34,7 @@ labels = descriptorsAndSpatialInfo[1]
 spatialInfo = descriptorsAndSpatialInfo[2]
 descriptors = preprocessing.scale(descriptors)
 
+print('Start predictions for',videosTest[0])
 preds = clf.predict(descriptors)
 target_names = ['Background', 'Cell', 'Boundary']
 classificationReport = classification_report(labels, preds, target_names=target_names)
