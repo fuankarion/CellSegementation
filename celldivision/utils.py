@@ -81,7 +81,7 @@ def getVoxelLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, cont
 
     for tokensIdx in range(0, len(tokens)-3, 3):
         if int(tokens[tokensIdx + 2]) > 0:#Cell candidate
-            centroidAnnotation = np.array([int(tokens[tokensIdx+1]), int(tokens[tokensIdx])])
+            centroidAnnotation = np.array([int(tokens[tokensIdx + 1]), int(tokens[tokensIdx])])
             cubeCenter = np.array([centerCubeX, centerCubeY])
             dist = euclidenaDistance(centroidAnnotation, cubeCenter)
             if dist < (int(tokens[tokensIdx + 2]) + boundaryTolerance):#Is inside
@@ -124,14 +124,15 @@ def getTrainDataFromVideo(tupleArgs):
     start = time.time()
     videoCube = tupleArgs[0]
     voxelSize = tupleArgs[1]
-    step = tupleArgs[2]
-    timeSize = tupleArgs[3]
-    order = tupleArgs[4]
-    sequenceName = tupleArgs[5]
-    datasetRoot = tupleArgs[6]
-    includeCoordinates = tupleArgs[7]
-    tolerance = tupleArgs[8]
-    includeBackground = tupleArgs[9]
+    timeSize = tupleArgs[2]
+    step = tupleArgs[3]
+    timeStep = tupleArgs[4]
+    order = tupleArgs[5]
+    sequenceName = tupleArgs[6]
+    datasetRoot = tupleArgs[7]
+    includeCoordinates = tupleArgs[8]
+    tolerance = tupleArgs[9]
+    includeBackground = tupleArgs[10]
         
     print('Process Feats from ', sequenceName)
     dirFrames = os.path.join(datasetRoot, sequenceName)
@@ -149,7 +150,7 @@ def getTrainDataFromVideo(tupleArgs):
         
     for x in range(0, videoCube.shape[0]-voxelSize, step):
         for y in range(0, videoCube.shape[1]-voxelSize, step):
-            for z in range(0, videoCube.shape[2]-timeSize, 1):
+            for z in range(0, videoCube.shape[2]-timeSize, timeStep):
                 voxelLabel = getVoxelLabel(x, y, z, tolerance, contentGT)
 
                 if voxelLabel == 0:
@@ -184,8 +185,9 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
     order = tupleArgs[5]
     sequenceName = tupleArgs[6]
     datasetRoot = tupleArgs[7]
-    includeCoordinates = True
-    includeBackground = tupleArgs[8]
+    includeCoordinates = False
+    tolerance = tupleArgs[8]
+    includeBackground = tupleArgs[9]
     
     print('Process Feats from ', sequenceName)
     dirFrames = os.path.join(datasetRoot, sequenceName)
@@ -203,14 +205,18 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
         contentGT = f.readlines()
         
     for x in range(0, videoCube.shape[0]-voxelSize, step):
-        print('sequenceName ',sequenceName,' x ',x)
+        print('sequenceName ', sequenceName, ' x ', x)
         for y in range(0, videoCube.shape[1]-voxelSize, step):
             for z in range(0, videoCube.shape[2]-timeSize, timeStep):
                 voxelLabel = getVoxelLabel(x, y, z, 0, contentGT)
 
                 if voxelLabel == 0:
-                    if not includeBackground:
-                        continue
+                    if includeBackground:
+                        ignoreFlag = random.uniform(0.0, 1.0)
+                        if ignoreFlag <= 0.8:
+                            continue
+                    else:
+                        continue  
    
                 aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
                 voxelDescriptor = getSTIPDescriptor(aVoxel, order)

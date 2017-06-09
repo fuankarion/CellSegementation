@@ -67,8 +67,9 @@ def createEvaluationFold(datasetRoot):
     print('dirsVal ', dirsVal)
     print('dirsTest ', dirsTest)
     return dirsTrain, dirsVal, dirsTest
+
  
-def loadSetFromVideos(videoDirs, datasetRoot, voxelSize, step, timeSize, order, includeCoordinate, tolerance, includeBackground):
+def loadSetFromVideos(videoDirs, datasetRoot, voxelSize, timeSize, step, timeStep, order, includeCoordinate, tolerance, includeBackground):
     featsSet = None
     labelsSet = None
 
@@ -76,8 +77,7 @@ def loadSetFromVideos(videoDirs, datasetRoot, voxelSize, step, timeSize, order, 
     for aVideoDir in videoDirs:
         dirFrames = os.path.join(datasetRoot, aVideoDir)
         videoCube = loadVideoCube(dirFrames)
-        
-        featCalculationArgs.append( (videoCube, voxelSize, step, timeSize, order, aVideoDir, datasetRoot, includeCoordinate, tolerance, includeBackground) )
+        featCalculationArgs.append((videoCube, voxelSize, timeSize, step, timeStep, order, aVideoDir, datasetRoot, includeCoordinate, tolerance, includeBackground))
     
     print('process feat data')
     data = processPool.map(getTrainDataFromVideo, featCalculationArgs)

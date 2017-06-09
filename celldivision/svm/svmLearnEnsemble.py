@@ -9,7 +9,7 @@ from svmUtil import *
 from sklearn.externals import joblib
 
 datasetRoot = '/home/jcleon/Storage/ssd0/cellDivision/MouEmbTrkDtb'
-numVideos = 10
+numVideos = 6
 
 ###Optimal param
 step = 20
@@ -18,7 +18,6 @@ voxelTimeSize = 5
 derivativeOrder = 4
 kernelOpt = 'rbf'
 COpt = 1000
-
 
 timeStep = 4
 tolerance = 0
