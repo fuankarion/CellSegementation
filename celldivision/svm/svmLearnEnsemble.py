@@ -13,13 +13,13 @@ numVideos = 6
 
 ###Optimal param
 step = 20
-voxelXYSize = 10
-voxelTimeSize = 5
+voxelXYSize = 15
+voxelTimeSize = 2
 derivativeOrder = 4
 kernelOpt = 'rbf'
-COpt = 1000
+COpt = 100
 
-timeStep = 4
+timeStep = 3
 tolerance = 0
 
 dirsTrain, dirsTest = createTrainAndTestSubSets(datasetRoot, numVideos)

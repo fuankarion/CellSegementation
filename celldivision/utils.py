@@ -159,7 +159,7 @@ def getTrainDataFromVideo(tupleArgs):
                         if ignoreFlag <= 0.8:
                             continue
                     else:
-                        continue                           
+                        continue    
 
                 aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
                 voxelDescriptor = getSTIPDescriptor(aVoxel, order)

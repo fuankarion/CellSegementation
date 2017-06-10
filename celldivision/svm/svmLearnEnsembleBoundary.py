@@ -8,32 +8,23 @@ from utils import *
 from svmUtil import *
 from sklearn.externals import joblib
 
-datasetRoot = '/home/jcleon/Storage/ssd1/cellDivision/MouEmbTrkDtb'
-numVideos=100
+datasetRoot = '/home/jcleon/Storage/ssd0/cellDivision/MouEmbTrkDtb'
+numVideos = 6
 
 ###Optimal param
 step = 20
-voxelXY = 5
-timeRange = 1
+voxelXYSize = 10
+voxelTimeSize = 5
 derivativeOrder = 4
 kernelOpt = 'rbf'
 COpt = 1000
 
+timeStep = 4
+tolerance = 5
+
 dirsTrain, dirsTest = createTrainAndTestSubSets(datasetRoot, numVideos)
-featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelXY, step, timeRange, derivativeOrder, True)
-featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelXY, step, timeRange, derivativeOrder, True)
-
-"""
-#Since we want test results
-dirsVal, dirsTest = createEvaluationFold(datasetRoot)
-
-featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelXY, step, timeRange, derivativeOrder)
-featsVal, labelsVal = loadSetFromVideos(dirsVal, datasetRoot, voxelXY, step, timeRange, derivativeOrder)
-featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelXY, step, timeRange, derivativeOrder)
-
-featsTrain = np.concatenate((featsTrain, featsVal), axis=1)
-labelsTrain = np.concatenate((labelsTrain, featsVal), axis=1)
-"""
+featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelXYSize, voxelTimeSize, step, timeStep, derivativeOrder, True, tolerance, False)
+featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelXYSize, voxelTimeSize, step, timeStep, derivativeOrder, True, tolerance, False)
 
 featsTrain = preprocessing.scale(featsTrain)
 featsTest = preprocessing.scale(featsTest)
@@ -49,8 +40,8 @@ end = time.time()
 print('SVM Train Time ', end - start)
 
 preds = clf.predict(featsTest)
-target_names = ['Background', 'Cell', 'Boundary']
+target_names = ['Cell', 'Boundary']
 classificationReport = classification_report(labelsTest, preds, target_names=target_names)
 print(classificationReport)
             
-joblib.dump(clf, '/home/jcleon/Storage/ssd1/cellDivision/models/svmEnsembleCheat.pkl') 
+joblib.dump(clf, '/home/jcleon/Storage/ssd0/cellDivision/models/svmEnsembleCheat.pkl') 
