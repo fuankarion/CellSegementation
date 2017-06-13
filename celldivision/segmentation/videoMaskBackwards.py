@@ -24,7 +24,6 @@ def reconstructSlice(rargs):
     labels = descriptorsAndSpatialInfo[1]
     spatialInfo = descriptorsAndSpatialInfo[2]
 
-    #NOT FOR NN
     descriptors = preprocessing.scale(descriptors)
 
     preds = clf.predict(descriptors)
@@ -37,7 +36,8 @@ def reconstructSlice(rargs):
     if not os.path.exists(targetDir):
         os.makedirs(targetDir)
         print ('created ', targetDir)
-        
+    
+    
     segmentationMask = np.zeros((videoShape[0], videoShape[1], 1))
 
     for dataIdx in range(0, len(spatialInfo)):
@@ -68,7 +68,7 @@ tolerance = 0
 includeCoordinate = True
 
 
-for aVideo in videosTest:
+for aVideo in videosTest[::-1]:
     dirFrames = os.path.join(datasetRoot, aVideo)
     videoCube = loadVideoCube(dirFrames)
 
@@ -76,7 +76,6 @@ for aVideo in videosTest:
 
     featCalculationArgs = []
     for zSlice in range(0, zMax):
-        #Get features
         featCalculationArgs.append((videoCube, voxelXY, timeSize, step, timeStep, derivativeOrder, aVideo, datasetRoot, includeCoordinate, tolerance, zSlice))
 
     descriptorsAndSpatialInfo = processPool.map(getTrainDataFromVideoSpatialInfo, featCalculationArgs)

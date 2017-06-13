@@ -194,7 +194,7 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
     tolerance = tupleArgs[9]
     z = tupleArgs[10]
     
-    print('Set up Memory')
+    #print('Set up Memory')
     dirFrames = os.path.join(datasetRoot, sequenceName)
 
     descriptors = []
@@ -225,7 +225,7 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
             labels.append(voxelLabel)
             spatialInfo.append((x, y, z))
     end = time.time()
-    #print('Process Feats Time ', end - start)
+    print('Process Feats Time ', end - start)
     
     start = time.time()    
     labels = np.squeeze(np.array(labels))
