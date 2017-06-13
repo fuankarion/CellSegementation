@@ -9,17 +9,17 @@ from svmUtil import *
 from sklearn.externals import joblib
 
 datasetRoot = '/home/jcleon/Storage/ssd0/cellDivision/MouEmbTrkDtb'
-numVideos = 6
+numVideos = 50
 
 ###Optimal param
-step = 20
-voxelXYSize = 15
-voxelTimeSize = 2
+step = 10
+voxelXYSize = 10
+voxelTimeSize = 5
 derivativeOrder = 4
 kernelOpt = 'rbf'
-COpt = 100
+COpt = 1000
 
-timeStep = 3
+timeStep = 10
 tolerance = 0
 
 dirsTrain, dirsTest = createTrainAndTestSubSets(datasetRoot, numVideos)
