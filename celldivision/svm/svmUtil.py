@@ -7,7 +7,7 @@ import sys
 sys.path.append('../')
 from utils import *
 
-processPool = mp.Pool(20)
+processPool = mp.Pool(30)
 
 def natural_key(string_):
     """See http://www.codinghorror.com/blog/archives/001018.html"""

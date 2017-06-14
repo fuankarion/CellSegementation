@@ -156,20 +156,23 @@ def getTrainDataFromVideo(tupleArgs):
     for x in range(int(voxelSize / 2), videoCube.shape[0]-int(voxelSize / 2), randint(step / 2, step)):
         for y in range(int(voxelSize / 2), videoCube.shape[1]-int(voxelSize / 2), randint(step / 2, step)):
             for z in range(int(timeSize / 2), videoCube.shape[2]-int(timeSize / 2), randint(timeStep / 2, timeStep)):
+    #for x in range(int(voxelSize / 2), videoCube.shape[0]-int(voxelSize / 2), step):
+        #for y in range(int(voxelSize / 2), videoCube.shape[1]-int(voxelSize / 2), step):
+            #for z in range(int(timeSize / 2), videoCube.shape[2]-int(timeSize / 2), timeStep):
                 voxelLabel = getVoxelLabel(x, y, z, tolerance, contentGT)
 
                 if voxelLabel == 0:
                     if includeBackground:
-                        ignoreFlag = random.uniform(0.0, 1.0)
+                        """ignoreFlag = random.uniform(0.0, 1.0)
                         if ignoreFlag <= 0.8:
-                            continue
+                            continue"""
                     else:
                         continue    
 
                 aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
                 voxelDescriptor = getSTIPDescriptor(aVoxel, order)
                 if includeCoordinates:
-                    voxelDescriptor = addXYCoordinatesToDescriptor(voxelDescriptor, x, y, videoCube)
+                    voxelDescriptor = addXYCoordinatesToDescriptor(voxelDescriptor, y, x, videoCube)
 
                 descriptors = np.concatenate((descriptors, voxelDescriptor), axis=0)
                 labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
@@ -218,7 +221,7 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
             aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
             voxelDescriptor = getSTIPDescriptor(aVoxel, order)
             if includeCoordinates:
-                voxelDescriptor = addXYCoordinatesToDescriptor(voxelDescriptor, x, y, videoCube)
+                voxelDescriptor = addXYCoordinatesToDescriptor(voxelDescriptor, y, x, videoCube)
 
             #print('voxelDescriptor.shape', voxelDescriptor.shape)
             descriptors.append(voxelDescriptor)
