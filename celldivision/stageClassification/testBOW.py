@@ -5,12 +5,11 @@ import os
 from scipy.cluster.vq import *
 from sklearn.externals import joblib
 from sklearn.metrics import classification_report
-from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
 
 #Best k=130 @ 0.77
 
-testPath = '/home/jcleon/Storage/disk0/Stages/Stages/testSmall'
+testPath = '/home/jcleon/Storage/ssd0/cellDivision/Stages/test'
 testNames = os.listdir(testPath)
 
 imagePaths = []
@@ -35,10 +34,8 @@ for anImagePath in imagePaths:
     desList.append(des)   
     
 
-
-
 for k in range(10, 200, 10):
-    dataBOW = joblib.load("/home/jcleon/DAKode/CellSegmentation/celldivision/stageClassification/bof" + str(k) + ".pkl")
+    dataBOW = joblib.load("/home/jcleon/Storage/ssd0/cellDivision/models/stageBOW" + str(k) + ".pkl")
     stdSlr = dataBOW[2]
     k = dataBOW[3]
     voc = dataBOW[4]
