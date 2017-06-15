@@ -36,7 +36,6 @@ dirsTest = ['E59', 'E52', 'E53', 'E93', 'E17', 'E44', 'E60', 'E64', 'E72',
     'E49', 'E87', 'E58']
     
 
-
 featsTrain, labelsTrain = loadSetFromVideos(dirsTrain, datasetRoot, voxelXYSize, voxelTimeSize, step, timeStep, derivativeOrder, True, tolerance, True)
 featsTest, labelsTest = loadSetFromVideos(dirsTest, datasetRoot, voxelXYSize, voxelTimeSize, step, timeStep, derivativeOrder, True, tolerance, True)
 

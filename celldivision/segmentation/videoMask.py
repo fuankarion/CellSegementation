@@ -52,9 +52,11 @@ def reconstructSlice(rargs):
     scipy.misc.imsave(imgPath, segmentationMask)
 
 datasetRoot = '/home/jcleon/Storage/ssd0/cellDivision/MouEmbTrkDtb'
-#videosTest = ['E01', 'E03', 'E11', 'E19', 'E21', 'E25', 'E26', 'E30', 'E31', 'E39', 'E40', 'E41', 'E45', 'E53', 'E57', 'E60', 'E61', 'E65', 'E66', 'E69', 'E70', 'E75', 'E81', 'E89', 'E90', 'E91', 'E92', 'E94', 'E98']
-videosTest = ['E03', 'E11', 'E19', 'E21', 'E25', 'E26', 'E30', 'E31', 'E39', 'E40', 'E41', 'E45', 'E53', 'E57', 'E60', 'E61', 'E65', 'E66', 'E69', 'E70', 'E75', 'E81', 'E89', 'E90', 'E91', 'E92', 'E94', 'E98']
-
+videosTest = ['E59', 'E52', 'E53', 'E93', 'E17', 'E44', 'E60', 'E64', 'E72',
+    'E20', 'E39', 'E96', 'E36', 'E24', 'E71', 'E22', 'E35', 'E43',
+    'E31', 'E23', 'E97', 'E67', 'E79', 'E54', 'E05', 'E34', 'E07',
+    'E49', 'E87', 'E58']
+    
 targetRoot = '/home/jcleon/Storage/ssd0/cellDivision/segmentations'
 classifierDump = '/home/jcleon/Storage/ssd0/cellDivision/models/svmEnsembleCheat.pkl'
 clf = joblib.load(classifierDump)
@@ -67,7 +69,6 @@ timeStep = 5
 derivativeOrder = 4
 tolerance = 0
 includeCoordinate = True
-
 
 for aVideo in videosTest:
     dirFrames = os.path.join(datasetRoot, aVideo)

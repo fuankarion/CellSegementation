@@ -8,7 +8,7 @@ from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
-def exploreParameterSet(k, descriptors, descriptorList):
+def exploreParameterSet(k, descriptors, descriptorList, targetPath):
     # Perform k-means clustering
     print('Clustering k=', k)
     voc, variance = kmeans(descriptors, k, 1) 
@@ -38,13 +38,14 @@ def exploreParameterSet(k, descriptors, descriptorList):
     print(classificationReport)
 
     # Save the SVM
-    joblib.dump((clf, trainingNames, stdSlr, k, voc), 'bof'+str(k)+'.pkl', compress=3)    
+    joblib.dump((clf, trainingNames, stdSlr, k, voc), os.path.join(targetPath, 'stageBOW' + str(k) + '.pkl'))    
 
 
 featureDetector = cv2.xfeatures2d.SIFT_create()
 
 # Get the training classes names and store them in a list
-trainPath = '/home/jcleon/Storage/disk0/Stages/Stages/trainSmall'
+targetPath = '/home/jcleon/Storage/ssd0/cellDivision/models'
+trainPath = '/home/jcleon/Storage/ssd0/cellDivision/Stages/train'
 trainingNames = os.listdir(trainPath)
 
 # Get all the path to the images and save them in a list
@@ -76,5 +77,5 @@ print('Stack descriptors')
 descriptors = np.vstack(descriptorList)
 
 
-for k in range(10,200,10):
-    exploreParameterSet(k, descriptors, descriptorList)
+for k in range(10, 200, 10):
+    exploreParameterSet(k, descriptors, descriptorList, targetPath)
