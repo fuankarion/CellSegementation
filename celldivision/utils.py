@@ -163,9 +163,9 @@ def getTrainDataFromVideo(tupleArgs):
 
                 if voxelLabel == 0:
                     if includeBackground:
-                        """ignoreFlag = random.uniform(0.0, 1.0)
-                        if ignoreFlag <= 0.8:
-                            continue"""
+                        ignoreFlag = random.uniform(0.0, 1.0)
+                        if ignoreFlag <= 0.70:
+                            continue
                     else:
                         continue    
 
