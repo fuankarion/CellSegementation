@@ -193,7 +193,7 @@ def Jaccard_Calculation(parametros):
 		label_actual = label_circles[ii]
 		if init_circles is None:
 			jac_perpred = []		
-			for i in range(0,l+en(label_actual)):
+			for i in range(0,len(label_actual)):
 				jac_perpred.append(0)
 			jac_perpred = np.array(jac_perpred)
 			#print('jacc',jac_perpred)
