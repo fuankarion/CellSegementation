@@ -260,13 +260,15 @@ processPool = mp.Pool(20)
 mindists = np.array((10,20,30,40,50,60))
 param2 = np.array((15,20,25,30,35,40,45))
 minRadius = np.array((40,45,50,55,60,65,70))
+jacc = np.array((0.4,0.5,0.6,0.7))
 
 parametros = []
 
 for dist in mindists:
 	for param in param2:
 		for radius in minRadius:
-			parametros.append((dist,param,radius))
+			for jaccard in jacc:
+				parametros.append((dist,param,radius,jaccard))
 
 #Jaccard_Calculation(parametros[0])
 processPool.map(Jaccard_Calculation, parametros)
