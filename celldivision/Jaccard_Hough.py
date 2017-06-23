@@ -1,3 +1,7 @@
+"""
+Jaccard no prior
+"""
+
 import cv2
 import numpy as np 
 import math
@@ -32,6 +36,7 @@ frame_array = []
 mask_array = []
 labels_array = np.zeros((0,21))
 
+
 for video in testvideos:
 	#print('Test: Video ' + str(con+1) + ' from ' +str(len(testvideos)))
 	frames = os.listdir(os.path.join(datapath ,video))
@@ -57,9 +62,15 @@ for video in testvideos:
 		frame_array.append(im)
 		mask_array.append(mask)
 	con += 1
+
+#Este arreglos tiene tantos elementos como mascaras
 frame_array = np.array(frame_array)
+
+#Este arreglos tiene tantos elementos como mascaras
 mask_array = np.array(mask_array)
+
 #frame_array = frame_array[0:-1]
+#Este arreglos tiene tantos elementos  labels
 labels_array = np.array(labels_array)
 
 #Generate cells annotations
@@ -76,6 +87,7 @@ for i in range(0,labels_array.shape[0]):
 			circle = label_actual[pos:pos+3]
 			print('circle',circle)
 			label_image.append(circle)
+	#Label circles tiene todo organizado por imagen
 	label_circles.append(label_image)
 	label_image = []
 
@@ -98,6 +110,7 @@ for mask in mask_array:
 	ra = math.sqrt(nonZero / math.pi)
 	#print('radius',ra)
 	radius.append(ra)
+#Radios para cada imagen
 radius = np.array(radius)
 
 def Jaccard_Calculation(parametros):
@@ -108,12 +121,15 @@ def Jaccard_Calculation(parametros):
 	scores_TPFP = []
 	scores_FN = []
 	start = time.time()
+	
+	#PRimero todas las imagenes
 	for ii in range(0,frame_array.shape[0]):
 		print('Image ' + str(ii) + ' from ' + str(frame_array.shape[0]))
 		stage = stages[ii]
 		im = cv2.medianBlur(frame_array[ii],5)
 		#print('Applying Hough Transform to ' + str(ii) + ' of ' + str(frame_array.shape[0]))
 		start = time.time()
+		#Predccion de hough
 		init_circles = cv2.HoughCircles(im,cv2.HOUGH_GRADIENT,1,mindist,
 	                            param1=50,param2=param2,minRadius=minRadius,maxRadius=140)
 		end = time.time()
@@ -129,6 +145,8 @@ def Jaccard_Calculation(parametros):
 			continue
 		init_circles = init_circles[0]
 		#print('init_circles',init_circles)
+		
+		#Aca arranca el NMS
 		circles = []
 		circles.append(init_circles[0])
 		for c in init_circles:
@@ -139,7 +157,11 @@ def Jaccard_Calculation(parametros):
 			Jaccard = inter.area/union.area
 			if Jaccard < nms:
 				circles.append(c)
+				
+		#Aca Acaba el NMS
 		#label_actual = label_circles[ii]
+		
+		#Aca se guarad los scores de jaccard por cada label
 		jac_perlabel = np.zeros((len(circles),len(label_actual)))
 		j = 0 
 		for pred in circles:
@@ -155,6 +177,8 @@ def Jaccard_Calculation(parametros):
 				jac_perlabel[j,k] = Jaccard
 				k+=1
 			j += 1
+			
+		#Scores de jaccard por prediccion (o al reves)
 		jac_perpred = []
 		for f in range(0,jac_perlabel.shape[0]):
 			jac_perpred.append(jac_perlabel[f].max()) 
@@ -169,7 +193,7 @@ def Jaccard_Calculation(parametros):
 		label_actual = label_circles[ii]
 		if init_circles is None:
 			jac_perpred = []		
-			for i in range(0,len(label_actual)):
+			for i in range(0,l+en(label_actual)):
 				jac_perpred.append(0)
 			jac_perpred = np.array(jac_perpred)
 			#print('jacc',jac_perpred)
@@ -227,6 +251,10 @@ def Jaccard_Calculation(parametros):
 	scores_FN = []
 	scores_TPFP = []
 
+"""
+Parameter Exploration
+"""
+	
 processPool = mp.Pool(20)
 
 mindists = np.array((10,20,30,40,50,60))
