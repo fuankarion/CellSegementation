@@ -1,8 +1,10 @@
+import collections
 import cv2
 import glob
 import numpy as np
 import os
 import random
+from random import randint
 import re
 from scipy.ndimage import filters
 import time
@@ -19,15 +21,15 @@ def getSTIPDescriptor(data, order):
     centerZ = int(result.shape[2] / 2)
     
     for i in range (0, order):
-        result[:,:,:, 0 + (i * 8)] = filters.gaussian_filter(data, [1, 1, 1], order=i)   
-        result[:,:,:, 1 + (i * 8)] = filters.gaussian_filter(data, [1, 1, -1], order=i)   
-        result[:,:,:, 2 + (i * 8)] = filters.gaussian_filter(data, [1, -1, 1], order=i)   
-        result[:,:,:, 3 + (i * 8)] = filters.gaussian_filter(data, [1, -1, -1], order=i)   
+        result[:, :, :, 0 + (i * 8)] = filters.gaussian_filter(data, [1, 1, 1], order=i)   
+        result[:, :, :, 1 + (i * 8)] = filters.gaussian_filter(data, [1, 1, -1], order=i)   
+        result[:, :, :, 2 + (i * 8)] = filters.gaussian_filter(data, [1, -1, 1], order=i)   
+        result[:, :, :, 3 + (i * 8)] = filters.gaussian_filter(data, [1, -1, -1], order=i)   
 
-        result[:,:,:, 4 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, 1], order=i)   
-        result[:,:,:, 5 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, -1], order=i)   
-        result[:,:,:, 6 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, 1], order=i)   
-        result[:,:,:, 7 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, -1], order=i)   
+        result[:, :, :, 4 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, 1], order=i)   
+        result[:, :, :, 5 + (i * 8)] = filters.gaussian_filter(data, [-1, 1, -1], order=i)   
+        result[:, :, :, 6 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, 1], order=i)   
+        result[:, :, :, 7 + (i * 8)] = filters.gaussian_filter(data, [-1, -1, -1], order=i)   
     
     for i in range (0, order):
         decriptor.append(result[centerX, centerY, centerZ, 0 + (i * 8)])
@@ -71,10 +73,15 @@ def loadVideoCube(videoPath):
     for aFile in files: 
         fileSourcePath = os.path.join(videoPath, aFile)
         img = cv2.imread(fileSourcePath, 0)
+<<<<<<< HEAD
         cube[:, :, 0,fileIdx] = img
         cube[:, :, 1,fileIdx] = distx
         cube[:, :, 2,fileIdx] = disty
       
+=======
+        cube[:, :, fileIdx] = img
+        
+>>>>>>> 0452a37aaca9d34aa68451378f3446247ed1887f
         fileIdx = fileIdx + 1
         if fileIdx+1 > numLines:
             print('Break at ',fileIdx)
@@ -83,23 +90,30 @@ def loadVideoCube(videoPath):
     return cube
 
 def getVoxelFromVideoCube(videoCube, startX, startY, startZ, size, timeSize):
+<<<<<<< HEAD
     return  videoCube[startX:startX + size, startY:startY + size,:, startZ:startZ + timeSize]
+=======
+    halfSize = int(size / 2)
+    return  videoCube[(startY-halfSize):(startY + halfSize), (startX-halfSize):(startX + halfSize), startZ:(startZ + timeSize)]
+>>>>>>> 0452a37aaca9d34aa68451378f3446247ed1887f
    
-def getCubeLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, contentGT):
+def getVoxelLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, contentGT):
     gtLine = contentGT[centerCubeZ]
     tokens = gtLine.split('\t')
     label = 0
-
+ 
     for tokensIdx in range(0, len(tokens)-3, 3):
-        if int(tokens[tokensIdx + 2]) > 0:#Cell candidate
+        cellRadius = int(tokens[tokensIdx + 2])
+        if  cellRadius > 0:#Cell candidate
             centroidAnnotation = np.array([int(tokens[tokensIdx]), int(tokens[tokensIdx + 1])])
-            cubeCenter = np.array([centerCubeX, centerCubeY])
-            dist = euclidenaDistance(centroidAnnotation, cubeCenter)
-            if dist < (int(tokens[tokensIdx + 2]) + boundaryTolerance):#Is inside
+            cubeCenter = np.array([centerCubeY, centerCubeX])
+            dist = euclidenaDistance(centroidAnnotation, cubeCenter)       
+            
+            if dist < (cellRadius + boundaryTolerance):#Is inside
                 label = 1
-                if dist > (int(tokens[tokensIdx + 2])-boundaryTolerance):
-                    label = 2
-                        
+                if dist > (cellRadius -boundaryTolerance):
+                    return 2
+                   
     return label
 
 def getFrameStageLabel(datasetRoot, videoId, frameIdx):
@@ -135,14 +149,15 @@ def getTrainDataFromVideo(tupleArgs):
     start = time.time()
     videoCube = tupleArgs[0]
     voxelSize = tupleArgs[1]
-    step = tupleArgs[2]
-    timeSize = tupleArgs[3]
-    order = tupleArgs[4]
-    sequenceName = tupleArgs[5]
-    datasetRoot = tupleArgs[6]
-    includeCoordinates = tupleArgs[7]
-    tolerance = tupleArgs[8]
-    includeBackground = tupleArgs[9]
+    timeSize = tupleArgs[2]
+    step = tupleArgs[3]
+    timeStep = tupleArgs[4]
+    order = tupleArgs[5]
+    sequenceName = tupleArgs[6]
+    datasetRoot = tupleArgs[7]
+    includeCoordinates = tupleArgs[8]
+    tolerance = tupleArgs[9]
+    includeBackground = tupleArgs[10]
         
     print('Process Feats from ', sequenceName)
     dirFrames = os.path.join(datasetRoot, sequenceName)
@@ -158,23 +173,34 @@ def getTrainDataFromVideo(tupleArgs):
     with open(pathGT) as f:
         contentGT = f.readlines()
         
+<<<<<<< HEAD
     for x in range(0, videoCube.shape[0]-voxelSize, step):
         for y in range(0, videoCube.shape[1]-voxelSize, step):
             for z in range(0, videoCube.shape[3]-timeSize, step):
                 voxelLabel = getCubeLabel(x, y, z, tolerance, contentGT)
                 
+=======
+    for x in range(int(voxelSize / 2), videoCube.shape[0]-int(voxelSize / 2), randint(step / 2, step)):
+        for y in range(int(voxelSize / 2), videoCube.shape[1]-int(voxelSize / 2), randint(step / 2, step)):
+            for z in range(int(timeSize / 2), videoCube.shape[2]-int(timeSize / 2), randint(timeStep / 2, timeStep)):
+    #for x in range(int(voxelSize / 2), videoCube.shape[0]-int(voxelSize / 2), step):
+        #for y in range(int(voxelSize / 2), videoCube.shape[1]-int(voxelSize / 2), step):
+            #for z in range(int(timeSize / 2), videoCube.shape[2]-int(timeSize / 2), timeStep):
+                voxelLabel = getVoxelLabel(x, y, z, tolerance, contentGT)
+
+>>>>>>> 0452a37aaca9d34aa68451378f3446247ed1887f
                 if voxelLabel == 0:
                     if includeBackground:
                         ignoreFlag = random.uniform(0.0, 1.0)
-                        if ignoreFlag <= 0.8:
+                        if ignoreFlag <= 0.70:
                             continue
                     else:
-                        continue                           
+                        continue    
 
                 aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
                 voxelDescriptor = getSTIPDescriptor(aVoxel, order)
                 if includeCoordinates:
-                    voxelDescriptor = addXYCoordinatesToDescriptor(voxelDescriptor, x, y, videoCube)
+                    voxelDescriptor = addXYCoordinatesToDescriptor(voxelDescriptor, y, x, videoCube)
 
                 descriptors = np.concatenate((descriptors, voxelDescriptor), axis=0)
                 labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
@@ -203,6 +229,7 @@ def getVoxelLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, cont
                    
     return label    
 
+#(videoCube, voxelXY, timeSize, step, timeStep, derivativeOrder, videosTest[0], datasetRoot, includeCoordinate, tolerance, zSlice)
 def getTrainDataFromVideoSpatialInfo(tupleArgs):
     videoCube = tupleArgs[0]
     voxelSize = tupleArgs[1]
@@ -236,6 +263,7 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
         for y in range(int(voxelSize / 2), videoCube.shape[1]-int(voxelSize / 2), step):
            
             voxelLabel = getVoxelLabel(x, y, z, 0, contentGT)
+<<<<<<< HEAD
 
             aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
             #voxelDescriptor = getSTIPDescriptor(aVoxel, order)
@@ -244,6 +272,16 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
 
             #print('voxelDescriptor.shape', voxelDescriptor.shape)
             descriptors.append(aVoxel)
+=======
+
+            aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
+            voxelDescriptor = getSTIPDescriptor(aVoxel, order)
+            if includeCoordinates:
+                voxelDescriptor = addXYCoordinatesToDescriptor(voxelDescriptor, y, x, videoCube)
+
+            #print('voxelDescriptor.shape', voxelDescriptor.shape)
+            descriptors.append(voxelDescriptor)
+>>>>>>> 0452a37aaca9d34aa68451378f3446247ed1887f
             labels.append(voxelLabel)
             spatialInfo.append((x, y, z))
     end = time.time()
@@ -255,4 +293,9 @@ def getTrainDataFromVideoSpatialInfo(tupleArgs):
     end = time.time()
     #print('NP Array Conversion Time ', end - start)
     #print('descriptors.shape', descriptors.shape)
+<<<<<<< HEAD
     return (descriptors, labels, spatialInfo)
+=======
+    return (descriptors, labels, spatialInfo)
+
+>>>>>>> 0452a37aaca9d34aa68451378f3446247ed1887f
