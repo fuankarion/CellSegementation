@@ -18,19 +18,19 @@ from sklearn.metrics import classification_report
 import tensorflow as tf
 import random
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 
-targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/vsize_experiments/'
-model_name = 'patch15_xy'
+targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/model_xy/2d/'
+model_name = 'patch13_xy'
 weights_path = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/2d/vsize_experiments/'
 
 batch_size = 8192
-num_classes = 3
+num_classes = 2
 epochs = 100
 data_augmentation = False
 
-datapath = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb/'
-numvideos = 50
+datapath = '/home/lapardo/SSD/alejo/MouEmbTrkDtb/'
+numvideos = 100
 numtrain = int(numvideos*0.7)
 numtest = numvideos - numtrain
 
@@ -40,8 +40,8 @@ videos = videos[0:numvideos]
 trainvideos = videos[0:numtrain]
 testvideos = videos[numtrain:numtrain+numtest]
 
-voxelSize = 15
-step = 15
+voxelSize = 13
+step = 13
 timeSize = 1
 tol = 0
 
@@ -217,14 +217,16 @@ y_pred = []
 for i in range(classes.shape[0]):
     y_pred.append(np.argmax(classes[i, :]))
 y_pred = np.array((y_pred))
-target_names = ['Background', 'Cell', 'Boundary']
+target_names = ['Background', 'Cell']#, 'Boundary']
 classificationReport = classification_report(labels_test, y_pred, target_names=target_names)
 print(classificationReport)
 
 metrics_train = model.evaluate(x_train,y_train,batch_size=batch_size)
 metrics_test = model.evaluate(x_test,y_test,batch_size=batch_size)
 
-#model.save(os.path.join(targetdir,model_name +'.h5'))
+model.save(os.path.join(targetdir,model_name +'.h5'))
+model.save_weights(os.path.join(targetdir,model_name +'.h5'))
+
 with open (os.path.join(targetdir,model_name + '.txt'),'w') as f:
   f.write('Parameters: \n Voxel_size: ' + str(voxelSize) + ' Step: ' + str(step) + ' tol: ' + str(tol) + '\n'
     + ' NumTrainSamples: '  + str(len(voxel_array_train)) 

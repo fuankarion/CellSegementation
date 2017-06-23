@@ -16,14 +16,15 @@ from sklearn.metrics import classification_report
 import tensorflow as tf
 import random
 import os
+from random import randint
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 
-targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models/'
-model_name = 'model_goodStep'
+targetdir = '/home/lapardo/SIPAIM/CellSegementation/celldivision/models_correct/3d/'
+model_name = 'model_patch13_time2_fulldataset'
 
 batch_size = 1024
-num_classes = 3
+num_classes = 2
 epochs = 100
 data_augmentation = False
 
@@ -49,9 +50,9 @@ labels_train = []
 for i in range(0,numtrain):
   print('Video',trainvideos[i])
   videoCube_train = ca.loadVideoCube(os.path.join(datapath,trainvideos[i]))
-  for x in range(0, videoCube_train.shape[0]-voxelSize, step):
+  for x in range(0, videoCube_train.shape[0]-voxelSize, randint(step/2, step)):
       print('train_data', x)
-      for y in range(0, videoCube_train.shape[1]-voxelSize, step):
+      for y in range(0, videoCube_train.shape[1]-voxelSize, randint(step/2, step)):
           for z in range(0, videoCube_train.shape[3]-timeSize, 1):
               #voxelDescriptor = getSTIPDescriptor(aVoxel)
               voxelLabel = ca.getCubeLabel(x, y, z, tol, os.path.join(datapath,trainvideos[i]))
@@ -78,10 +79,10 @@ labels_test = []
 for i in range(0,numtest):
   print('Video',trainvideos[i])
   videoCube_test = ca.loadVideoCube(os.path.join(datapath,testvideos[i]))
-  for x in range(0, videoCube_test.shape[0]-voxelSize, step):
+  for x in range(0, videoCube_test.shape[0]-voxelSize, randint(int(step/2), step)):
       print('test_data', x)
-      for y in range(0, videoCube_test.shape[1]-voxelSize, step):
-          for z in range(0, videoCube_test.shape[3]-timeSize, step):         
+      for y in range(0, videoCube_test.shape[1]-voxelSize, randint(int(step/2), step)):
+          for z in range(0, videoCube_test.shape[3]-timeSize, 1):         
               #voxelDescriptor = getSTIPDescriptor(aVoxel)
               voxelLabel = ca.getCubeLabel(x, y, z, tol, os.path.join(datapath,testvideos[i]))
               if voxelLabel == 0:
@@ -206,7 +207,7 @@ y_pred = []
 for i in range(classes.shape[0]):
     y_pred.append(np.argmax(classes[i, :]))
 y_pred = np.array((y_pred))
-target_names = ['Background', 'Cell', 'Boundary']
+target_names = ['Background', 'Cell']
 
 classificationReport = classification_report(labels_test, y_pred, target_names=target_names)
 print(classificationReport)
@@ -215,6 +216,7 @@ metrics_train = model.evaluate(x_train,y_train,batch_size=batch_size)
 metrics_test = model.evaluate(x_test,y_test,batch_size=batch_size)
 
 model.save(os.path.join(targetdir,model_name +'.h5'))
+model.save_weights(os.path.join(targetdir,model_name +'_weights.h5'))
 with open (os.path.join(targetdir,model_name + '.txt'),'w') as f:
   f.write('Parameters: \n Voxel_size: ' + str(voxelSize) + ' timeSize ' + str(timeSize) + ' Step: ' + str(step) + ' tol: ' + str(tol) + '\n'
     + ' NumTrainSamples: '  + str(len(voxel_array_train)) 

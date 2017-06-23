@@ -56,7 +56,9 @@ def loadVideoCube(videoPath):
     return cube
 
 def getVoxelFromVideoCube(videoCube, startX, startY, startZ, size, timeSize):
-    return  videoCube[startX:startX + size, startY:startY + size, :,startZ:startZ + timeSize]
+    halfSize = int(size / 2)
+    return videoCube[(startY-halfSize):(startY + halfSize), (startX-halfSize):(startX + halfSize),:, startZ:(startZ + timeSize)]   
+    #return  videoCube[startX:startX + size, startY:startY + size, :,startZ:startZ + timeSize]
 
 def euclideanDistance(x1, x2):
     distance = np.subtract(x1, x2)
@@ -68,16 +70,29 @@ def getCubeLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, pathG
         content = f.readlines()
         gtLine = content[centerCubeZ]
         #print(gtLine)
-        
+        label = 0
         tokens = gtLine.split('\t')
         #print(tokens)
-        
+    for tokensIdx in range(0, len(tokens)-3, 3):
+        cellRadius = int(tokens[tokensIdx + 2])
+        if  cellRadius > 0:#Cell candidate
+            centroidAnnotation = np.array([int(tokens[tokensIdx]), int(tokens[tokensIdx + 1])])
+            cubeCenter = np.array([centerCubeY, centerCubeX])
+            dist = euclideanDistance(centroidAnnotation, cubeCenter)       
+            
+            if dist < (cellRadius + boundaryTolerance):#Is inside
+                label = 1
+#                if dist > (cellRadius -boundaryTolerance):
+#                    return 2
+                   
+    return label        
+"""        
         label = 0
         for tokensIdx in range(0, len(tokens)-3, 3):
             #print('Annotation: ', tokens[tokensIdx], ',', tokens[tokensIdx + 1], ',', tokens[tokensIdx + 2])
             if int(tokens[tokensIdx + 2]) > 0:#Cell candidate
                 #print('Cell Annotation: ', tokens[tokensIdx], ',', tokens[tokensIdx + 1], ',', tokens[tokensIdx + 2])
-                centroidAnnotation = np.array([int(tokens[tokensIdx]), int(tokens[tokensIdx + 1])])
+                centroidAnnotation = np.array([int(tokens[tokensIdx+1]), int(tokens[tokensIdx])])
                 cubeCenter = np.array([centerCubeX, centerCubeY])
                 dist = euclideanDistance(centroidAnnotation, cubeCenter)
                 if dist < (int(tokens[tokensIdx + 2]) + boundaryTolerance):#Is inside
@@ -87,14 +102,14 @@ def getCubeLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, pathG
                         label = 2
                         
         return label
-
+"""
 def getStageLabel(pathGT):
     label = 0 #Una celula
     labels = []
     pathGT = os.path.join(pathGT, '_trajectories.txt')
     with open(pathGT) as f:
         content = np.loadtxt(f)
-    for n in range(0,len(content)-1):
+    for n in range(0,len(content)):
         if (content[n][3:21] == 0).all() == True: 
             labels.append(label + 1)
         elif (content[n][0:3] == 0).all() == True and (content[n][9:21] == 0).all() == True:     

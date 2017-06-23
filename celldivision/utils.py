@@ -42,37 +42,48 @@ def getSTIPDescriptor(data, order):
     return np.expand_dims(np.array(decriptor), axis=0)
 
 def loadVideoCube(videoPath):
-    start = time.time()
     pathGT = os.path.join(videoPath, '_trajectories.txt')
-    numLines = None
+    numLines=None
     with open(pathGT) as f:
-        content = f.readlines()
-        numLines = len(content)
+       content = f.readlines()
+       numLines=len(content)
+       
        
     print('videoPath', videoPath)
     files = glob.glob(videoPath + '/*.png')
     
     files = sorted(files, key=natural_key)
     
-    sampleImg = cv2.imread(os.path.join(videoPath, files[0]), 0)
+
+    sampleImg_ = cv2.imread(os.path.join(videoPath, files[0]), 0)
     
-    cube = np.zeros((sampleImg.shape[0], sampleImg.shape[1], numLines), np.int8)
+    x = np.linspace(1,255,sampleImg_.shape[0])    
+    y = np.linspace(1,255,sampleImg_.shape[1])        
+    distx, disty = np.meshgrid(x,y)
+
+    #distx = np.around((distx-distx.min())/(distx.max()-distx.min()))*255
+    #disty = np.around((disty-disty.min())/(disty.max()-disty.min()))*255
+    
+    sampleImg = np.zeros((sampleImg_.shape[0],sampleImg_.shape[1],3))
+
+    cube = np.zeros((sampleImg.shape[0], sampleImg.shape[1],sampleImg.shape[2], numLines), np.uint8)
     fileIdx = 0
     for aFile in files: 
         fileSourcePath = os.path.join(videoPath, aFile)
         img = cv2.imread(fileSourcePath, 0)
-        cube[:,:, fileIdx] = img
-        
+        cube[:, :, 0,fileIdx] = img
+        cube[:, :, 1,fileIdx] = distx
+        cube[:, :, 2,fileIdx] = disty
+      
         fileIdx = fileIdx + 1
-        if fileIdx + 1 > numLines:
-            print('Annotations for ', str(fileIdx) + ' images')
+        if fileIdx+1 > numLines:
+            print('Break at ',fileIdx)
             break
-    end = time.time()
-    print('Load cube time ', end - start)
+        
     return cube
 
 def getVoxelFromVideoCube(videoCube, startX, startY, startZ, size, timeSize):
-    return  videoCube[startX:startX + size, startY:startY + size, startZ:startZ + timeSize]
+    return  videoCube[startX:startX + size, startY:startY + size,:, startZ:startZ + timeSize]
    
 def getCubeLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, contentGT):
     gtLine = contentGT[centerCubeZ]
@@ -149,9 +160,8 @@ def getTrainDataFromVideo(tupleArgs):
         
     for x in range(0, videoCube.shape[0]-voxelSize, step):
         for y in range(0, videoCube.shape[1]-voxelSize, step):
-            for z in range(0, videoCube.shape[2]-timeSize, step):
+            for z in range(0, videoCube.shape[3]-timeSize, step):
                 voxelLabel = getCubeLabel(x, y, z, tolerance, contentGT)
-
                 
                 if voxelLabel == 0:
                     if includeBackground:
@@ -173,59 +183,76 @@ def getTrainDataFromVideo(tupleArgs):
     labels = np.delete(labels, 0, 0)
     print('Process Feats Time ', end - start)
     return (descriptors, labels)
-    
+
+def getVoxelLabel(centerCubeX, centerCubeY, centerCubeZ, boundaryTolerance, contentGT):
+    gtLine = contentGT[centerCubeZ]
+    tokens = gtLine.split('\t')
+    label = 0
+ 
+    for tokensIdx in range(0, len(tokens)-3, 3):
+        cellRadius = int(tokens[tokensIdx + 2])
+        if  cellRadius > 0:#Cell candidate
+            centroidAnnotation = np.array([int(tokens[tokensIdx]), int(tokens[tokensIdx + 1])])
+            cubeCenter = np.array([centerCubeY, centerCubeX])
+            dist = euclidenaDistance(centroidAnnotation, cubeCenter)       
+            
+            if dist < (cellRadius + boundaryTolerance):#Is inside
+                label = 1
+                if dist > (cellRadius -boundaryTolerance):
+                    return 2
+                   
+    return label    
 
 def getTrainDataFromVideoSpatialInfo(tupleArgs):
-    start = time.time()
     videoCube = tupleArgs[0]
     voxelSize = tupleArgs[1]
-    step = tupleArgs[2]
-    timeSize = tupleArgs[3]
-    order = tupleArgs[4]
-    sequenceName = tupleArgs[5]
-    datasetRoot = tupleArgs[6]
-    includeCoordinates = True
-    tolerance = tupleArgs[7]
-    includeBackground = tupleArgs[8]
+    timeSize = tupleArgs[2]
+    step = tupleArgs[3]
+    timeStep = tupleArgs[4]
+    order = tupleArgs[5]
+    sequenceName = tupleArgs[6]
+    datasetRoot = tupleArgs[7]
+    includeCoordinates = [8]
+    tolerance = tupleArgs[9]
+    z = tupleArgs[10]
     
-    print('Process Feats from ', sequenceName)
+    #print('Set up Memory')
     dirFrames = os.path.join(datasetRoot, sequenceName)
-    if includeCoordinates:
-        descriptors = np.zeros((1, (8 * order) + 2))
-    else:
-        descriptors = np.zeros((1, 8 * order))
-        
-    labels = np.zeros(1)
+
+    descriptors = []
+    labels = []
     spatialInfo = []
     
+    print('Load GT')
     contentGT = None
     pathGT = os.path.join(dirFrames, '_trajectories.txt')
     with open(pathGT) as f:
         contentGT = f.readlines()
         
-    for x in range(0, videoCube.shape[0]-voxelSize, step):
-        for y in range(0, videoCube.shape[1]-voxelSize, step):
-            for z in range(0, videoCube.shape[2]-timeSize, step):
-                voxelLabel = getCubeLabel(x, y, z, 0, contentGT)
+    print('Process Feats from ', sequenceName, ' Slice ', z)
+    start = time.time()    
+    for x in range(int(voxelSize / 2), videoCube.shape[0]-int(voxelSize / 2), step):
+        #print('sequenceName ', sequenceName, ' x ', x)
+        for y in range(int(voxelSize / 2), videoCube.shape[1]-int(voxelSize / 2), step):
+           
+            voxelLabel = getVoxelLabel(x, y, z, 0, contentGT)
 
-                if voxelLabel == 0:
-                    if not includeBackground:
-                        continue
-   
+            aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
+            #voxelDescriptor = getSTIPDescriptor(aVoxel, order)
+            #if includeCoordinates:
+            #    voxelDescriptor = addXYCoordinatesToDescriptor(voxelDescriptor, x, y, videoCube)
 
-                aVoxel = getVoxelFromVideoCube(videoCube, x, y, z, voxelSize, timeSize)
-                voxelDescriptor = getSTIPDescriptor(aVoxel, order)
-                if includeCoordinates:
-                    voxelDescriptor = addXYCoordinatesToDescriptor(voxelDescriptor, x, y, videoCube)
-
-                descriptors = np.concatenate((descriptors, voxelDescriptor), axis=0)
-                labels = np.concatenate((labels, np.array([voxelLabel])), axis=0)
-                spatialInfo.append((x, y, z))
+            #print('voxelDescriptor.shape', voxelDescriptor.shape)
+            descriptors.append(aVoxel)
+            labels.append(voxelLabel)
+            spatialInfo.append((x, y, z))
     end = time.time()
     print('Process Feats Time ', end - start)
-    return (descriptors, labels, spatialInfo)
     
-"""
-label = getFrameStageLabel('/home/jcleon/Storage/ssd0/cellDivision/MouEmbTrkDtb/', 'E90', 228)
-print('Label ', label)
-"""
+    start = time.time()    
+    labels = np.squeeze(np.array(labels))
+    descriptors = np.squeeze(np.array(descriptors))
+    end = time.time()
+    #print('NP Array Conversion Time ', end - start)
+    #print('descriptors.shape', descriptors.shape)
+    return (descriptors, labels, spatialInfo)
