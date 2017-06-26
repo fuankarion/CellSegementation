@@ -6,9 +6,17 @@ from shapely.ops import cascaded_union
 
 baseDir = '/home/fuanka/Downloads/MouEmbTrkDtb/MouEmbTrkDtb'
 
-params1Cell = [120, 100, 25, 90]
-params2Cell = [80, 100, 25, 50]
-params3Cell = [50, 100, 25, 25]
+bestGlobalParams = [10, 50, 35, 70, 140]
+
+params1Cell = [10, 100, 30, 90, 140]
+params2Cell = [10, 100, 20, 50, 90]
+params3Cell = [10, 100, 30, 25, 70]
+
+def getHoughCircles(img, paramss):
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, minDist=paramss[0], 
+                               param1=paramss[1], param2=paramss[2], 
+                               minRadius=paramss[3], maxRadius=paramss[4])
+    return circles
 
 def drawCircles(img, circles):
     cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
@@ -33,12 +41,6 @@ def loadAndPrepocessImage(imPath):
     img = cv2.medianBlur(img, 5)
     return img
 
-def getHoughCircles(img, paramss):
-    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, paramss[0], 
-                               param1=paramss[1], param2=paramss[2], 
-                               minRadius=paramss[3], maxRadius=240)
-    return circles
-        
 def getCircleLabelsForFrame(video, frameIdx):
     contentGT = loadGT(video)
     gtLine = contentGT[frameIdx]
@@ -62,7 +64,8 @@ imPath = os.path.join(baseDir, video, 'Frame' + str(frameIdx).zfill(3) + '.png')
 
 gtCircles = getCircleLabelsForFrame(video, frameIdx)
 img = loadAndPrepocessImage(imPath)
-circles = getHoughCircles(img, params2Cell)
+circles = getHoughCircles(img, bestGlobalParams)
+#circles = getHoughCircles(img, params3Cell)
 
 drawCircles(img, circles)
 
@@ -70,20 +73,18 @@ print('gtCircles ', gtCircles)
 print('circles ', circles)
 print(circles.shape)
 
-gtAsShape=[]
+#Better jaccard Calculation
+gtAsShape = []
 for aCircleGTIdx in range(len(gtCircles)):
-    circleShape=Point(gtCircles[aCircleGTIdx][0], gtCircles[aCircleGTIdx][1]).buffer(gtCircles[aCircleGTIdx][2])
+    circleShape = Point(gtCircles[aCircleGTIdx][0], gtCircles[aCircleGTIdx][1]).buffer(gtCircles[aCircleGTIdx][2])
     gtAsShape.append(circleShape)
-    
-gtUnion=cascaded_union(gtAsShape)
+gtUnion = cascaded_union(gtAsShape)
 
-
-predsAsShape=[]
+predsAsShape = []
 for aCirclePredIdx in range(circles.shape[1]):
-    circleShape=Point(circles[0][aCirclePredIdx][0], circles[0][aCirclePredIdx][1]).buffer(circles[0][aCirclePredIdx][2])
+    circleShape = Point(circles[0][aCirclePredIdx][0], circles[0][aCirclePredIdx][1]).buffer(circles[0][aCirclePredIdx][2])
     predsAsShape.append(circleShape)
-    
-predsUnion=cascaded_union(predsAsShape)
+predsUnion = cascaded_union(predsAsShape)
 
 inter = predsUnion.intersection(gtUnion)
 union = predsUnion.union(gtUnion)
