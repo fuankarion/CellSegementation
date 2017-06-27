@@ -9,8 +9,8 @@ baseDir = '/home/fuanka/Downloads/MouEmbTrkDtb/MouEmbTrkDtb'
 bestGlobalParams = [35, 50, 35, 70, 140]
 
 params1Cell = [35, 50, 30, 90, 140]
-params2Cell = [35, 50, 20, 50, 90]
-params3Cell = [35, 50, 30, 25, 70]
+params2Cell = [35, 50, 20, 60, 110]
+params3Cell = [35, 50, 35, 25, 90]
 
 def getHoughCircles(img, paramss):
     circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, minDist=paramss[0], 
@@ -55,7 +55,7 @@ def getCircleLabelsForFrame(video, frameIdx):
             
     return gtCircles
     
-def calculateJaccard(circles,gtCircles):
+def calculateJaccard(circles, gtCircles):
     #Better jaccard Calculation
     gtAsShape = []
     for aCircleGTIdx in range(len(gtCircles)):
@@ -64,27 +64,46 @@ def calculateJaccard(circles,gtCircles):
     gtUnion = cascaded_union(gtAsShape)
 
     predsAsShape = []
-    for aCirclePredIdx in range(circles.shape[1]):
-        circleShape = Point(circles[0][aCirclePredIdx][0], circles[0][aCirclePredIdx][1]).buffer(circles[0][aCirclePredIdx][2])
+    if circles is None:
+        circleShape = Point(0, 0).buffer(1)
         predsAsShape.append(circleShape)
+    else:
+        for aCirclePredIdx in range(circles.shape[1]):
+            if aCirclePredIdx>1:
+                break;
+            circleShape = Point(circles[0][aCirclePredIdx][0], circles[0][aCirclePredIdx][1]).buffer(circles[0][aCirclePredIdx][2])
+            predsAsShape.append(circleShape)
+
     predsUnion = cascaded_union(predsAsShape)
 
     inter = predsUnion.intersection(gtUnion)
     union = predsUnion.union(gtUnion)
     jaccard = inter.area / union.area
-    print('Jaccard', jaccard)
+    return jaccard
     
 
 video = 'E10'
-frameIdx = 301
-imPath = os.path.join(baseDir, video, 'Frame' + str(frameIdx).zfill(3) + '.png')
+avgBase=0.0
+avgOpt=0.0
+#for frameIdx in range(1, 75):
+#for frameIdx in range(75, 228):
+for frameIdx in range(228, 323):
+    gtCircles = getCircleLabelsForFrame(video, frameIdx)
+     
+    imPath = os.path.join(baseDir, video, 'Frame' + str(frameIdx).zfill(3) + '.png')
+    img = loadAndPrepocessImage(imPath)
 
-gtCircles = getCircleLabelsForFrame(video, frameIdx)
-img = loadAndPrepocessImage(imPath)
-circles = getHoughCircles(img, params3Cell)#bestGlobalParams #params3Cell
-
-#drawCircles(img, circles)
-
-calculateJaccard(circles,gtCircles)
-
+    circlesBase = getHoughCircles(img, bestGlobalParams)
+    baseJaccard = calculateJaccard(circlesBase, gtCircles)
+    avgBase=avgBase+baseJaccard
+    
+    circlesOptimized = getHoughCircles(img, params3Cell)
+    optimizedJaccard = calculateJaccard(circlesOptimized, gtCircles)
+    #drawCircles(img, circlesOptimized)
+    avgOpt=avgOpt+optimizedJaccard
+    
+    print('Frame ',frameIdx, ' baseJaccard ', baseJaccard, ' optimizedJaccard ', optimizedJaccard)
+    
+print('avgBase ',avgBase/(228-75))
+print('avgOpt ',avgOpt/(228-75))
 
