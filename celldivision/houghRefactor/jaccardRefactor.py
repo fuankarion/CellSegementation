@@ -106,9 +106,13 @@ avgOpt = 0.0
 start = 75
 end = 228
 
+
+
 for aVideo in videos:
     avgBase=0
     avgOpt=0
+    baseList=[]
+    optimizedList=[]
     for frameIdx in range(start, end):
         gtCircles = getCircleLabelsForFrame(aVideo, frameIdx)
 
@@ -117,10 +121,12 @@ for aVideo in videos:
 
         circlesBase = getHoughCircles(img, bestGlobalParams)
         baseJaccard = calculateJaccard(circlesBase, gtCircles)
+        baseList.append(baseJaccard)
         avgBase = avgBase + baseJaccard
 
         circlesOptimized = getHoughCircles(img, params2Cell)
         optimizedJaccard = calculateJaccard(circlesOptimized, gtCircles)
+        optimizedList.append(optimizedJaccard)
         avgOpt = avgOpt + optimizedJaccard
 
         #print('Frame ', frameIdx, ' baseJaccard ', baseJaccard, ' optimizedJaccard ', optimizedJaccard)
@@ -128,4 +134,10 @@ for aVideo in videos:
     print('Video ',aVideo)
     print('avgBase ', avgBase / (end-start))
     print('avgOpt ', avgOpt / (end-start))
+    
+    baseAsArray=np.array(baseList)
+    optimizedAsArray=np.array(optimizedList)
+    
+    print('baseAsArray.mean() ',baseAsArray.mean())
+    print('optimizedAsArray.mean() ',optimizedAsArray.mean())
 
