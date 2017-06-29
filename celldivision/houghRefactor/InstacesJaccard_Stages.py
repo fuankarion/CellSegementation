@@ -178,7 +178,7 @@ def FinalJaccar():
 	jac_perimage = []
 	n=0
 	for ii in range(0,frame_array.shape[0]):
-		n+=1
+		
 		print('Image ' + str(ii) + ' from ' + str(frame_array.shape[0]))
 		im = cv2.medianBlur(frame_array[ii],5)
 		gt = label_circles[ii]
@@ -192,7 +192,7 @@ def FinalJaccar():
 			params = ((40,25,60))
 		else:
 			params = ((20,65,70))
-
+		n+=1
 		jac=JaccardInstance(im,gt,params[0],param2=params[1],minRadius=params[2],nms=0.5)
 		jac_perimage.append(jac)
 	jac_perimage = np.array(jac_perimage)
