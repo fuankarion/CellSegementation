@@ -198,9 +198,9 @@ def FinalJaccar():
 	jac_perimage = np.array(jac_perimage)
 	meanJaccard = jac_perimage.mean()
 
-	print('mindists:' + str(params[0]) +' ,param2:' + str(params[1]) +' ,minRadius:' +  str(params[2]) + ' ,nms:'+ str(params[3]) +' ,Mean Jaccard: ' + str(meanJaccard)+ '\n')
+	print(' ,Mean Jaccard: ' + str(meanJaccard)+ '\n')
 	with open('../Hough/hough_CORRECT.csv','a') as f:
-		f.write('mindists:' + str(params[0]) +' ,param2:' + str(params[1]) +' ,minRadius:' +  str(params[2]) + ' ,nms:'+ str(params[3]) + ' ,Mean Jaccard: ' + str(meanJaccard)+ '\n')
+		f.write(' ,Mean Jaccard: ' + str(meanJaccard)+ '\n')
 
 #processPool = mp.Pool(20)
 #mindist = np.array((10,20,30,40,50,60))
