@@ -13,18 +13,26 @@ def natural_key(string_):
 
 def getFramesandCircles(datapath,numvideos,test=False):
 
-	numvideos = numvideos
-	numtrain = int(numvideos*0.7)
-	numtest = numvideos - numtrain
+    	numvideos = numvideos
+    	numtrain = int(numvideos*0.7)
+    	numtest = numvideos - numtrain
 
-	videos = os.listdir(datapath)
-	videos = videos[0:numvideos]
+    	trainvideos = ['E00', 'E01', 'E02', 'E03', 'E04', 'E06', 'E08', 'E09', 'E10',
+       		'E11', 'E12', 'E13', 'E14', 'E15', 'E16', 'E18', 'E19', 'E21',
+       		'E25', 'E26', 'E27', 'E28', 'E29', 'E30', 'E32', 'E33', 'E37',
+       		'E38', 'E40', 'E41', 'E42', 'E45', 'E46', 'E47', 'E48', 'E50',
+       		'E51', 'E55', 'E56', 'E57', 'E61', 'E62', 'E63', 'E65', 'E66',
+       		'E68', 'E69', 'E70', 'E73', 'E74', 'E75', 'E76', 'E77', 'E78',
+       		'E80', 'E81', 'E82', 'E83', 'E84', 'E85', 'E86', 'E88', 'E89',
+       		'E90', 'E91', 'E92', 'E94', 'E95', 'E98', 'E99']
+    	trainvideos = trainvideos[0:numtrain]
 
-	trainvideos = videos[0:numtrain]
-	trainvideos = sorted(trainvideos,key=natural_key)
-	#print(trainvideos)
-	testvideos = videos[numtrain:numtrain+numtest]
-	testvideos = sorted(testvideos,key=natural_key)
+    #print(trainvideos)
+    	testvideos = ['E05', 'E07', 'E17', 'E20', 'E22', 'E23', 'E24', 'E31', 'E34',
+       		'E35', 'E36', 'E39', 'E43', 'E44', 'E49', 'E52', 'E53', 'E54',
+       		'E58', 'E59', 'E60', 'E64', 'E67', 'E71', 'E72', 'E79', 'E87',
+       		'E93', 'E96', 'E97']
+    	testvideos = testvideos[0:numtest]
 
 	if test:
 		videos = testvideos
@@ -111,7 +119,7 @@ def JaccardInstance(im,gt,mindist,param2,minRadius,nms):
 		k = 0
 		for label in gt:
 			real_circle = Point(label[1],label[0]).buffer(label[2])
-			predicted_circle = Point(pred[1],pred[0]).buffer(pred[2])
+			predicted_circle = Point(pred[0],pred[1]).buffer(pred[2])
 			inter = real_circle.intersection(predicted_circle)
 			union = real_circle.union(predicted_circle)
 			Jaccard = inter.area/union.area
@@ -125,13 +133,15 @@ def JaccardInstance(im,gt,mindist,param2,minRadius,nms):
 	for index in range(jac_perlabel.shape[1]):
 		maximos_columna.append(jac_perlabel[:,index].max())
 		#jac_perlabel[:,index][jac_perlabel[:,index]!=jac_perlabel[:,index].max()]=0
+	maximos_columna = np.array(maximos_columna)
 	maximos_columna = maximos_columna.mean()
 
 	maximos_fila = []
 	for index in range(jac_perlabel.shape[0]):
 		maximos_fila.append(jac_perlabel[index,:].max())
 		#jac_perlabel[:,index][jac_perlabel[:,index]!=jac_perlabel[:,index].max()]=0
-	maximos_fila = maximos_fila.mean()	
+	maximos_fila = np.array(maximos_fila)
+	maximos_fila = maximos_fila.mean()
 
 	jac_perpred = np.zeros((len(gt),len(circles)))
 
@@ -154,9 +164,9 @@ def JaccardInstance(im,gt,mindist,param2,minRadius,nms):
 
 #print('Applying Hough Transform to ' + str(ii) + ' of ' + str(frame_array.shape[0]))
 
-datapath = '/home/lapardo/SSD/alejo/MouEmbTrkDtb/'
-numvideos = 50
-frame_array, label_circles = getFramesandCircles(datapath,numvideos,test=False)
+datapath = '/home/lapardo/SSD/MouEmbTrkDtb/'
+numvideos = 100
+frame_array, label_circles = getFramesandCircles(datapath,numvideos,test=True)
 
 
 def FinalJaccar(params):
@@ -174,16 +184,17 @@ def FinalJaccar(params):
 	with open('../Hough/hough_CORRECT.csv','a') as f:
 		f.write('mindists:' + str(params[0]) +' ,param2:' + str(params[1]) +' ,minRadius:' +  str(params[2]) + ' ,nms:'+ str(params[3]) + ' ,Mean Jaccard: ' + str(meanJaccard)+ '\n')
 
-processPool = mp.Pool(20)
-mindist = np.array((10,20,30,40,50,60))
-param2 = np.array((10,15,20,25,30,35))
-minRadius = np.array((40,45,50,55,60))
-nms = np.array((0.6,0.5,0.4,0.3,0.2))
-params = []
-for d in mindist:
-	for p in param2:
-		for r in minRadius:
-			for nm in nms:
-				params.append((d,p,r,nm))
+#processPool = mp.Pool(20)
+#mindist = np.array((10,20,30,40,50,60))
+#param2 = np.array((10,15,20,25,30,35))
+#minRadius = np.array((40,45,50,55,60))
+#nms = np.array((0.6,0.5,0.4,0.3,0.2))
+#params = []
+#for d in mindist:
+#	for p in param2:
+#		for r in minRadius:
+#			for nm in nms:
+#				params.append((d,p,r,nm))
 
-processPool.map(FinalJaccar, params)
+#processPool.map(FinalJaccar, params)
+FinalJaccar((20,25,60,0.5))
