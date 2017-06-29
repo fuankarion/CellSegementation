@@ -208,6 +208,7 @@ for n in range(len(label_circles_complete)):
 	params = ((20,65,70))
     frame_array.append(frame_array_complete[n])
     label_circles.append(label_circles_complete[n])
+#SemanticEval()
 frame_array = np.array(frame_array)
 
 def SemanticEval():
@@ -217,6 +218,16 @@ def SemanticEval():
         img = frame_array[i]
         gtCircles = label_circles[i]
         stage = Stages[i]
+	if stage == 0:
+		bestGlobalParams = [20, 50, 25, 60, 140]
+	elif stage == 1:
+		bestGlobalParams = [40, 50, 30, 100, 140]
+        elif stage == 2:
+                bestGlobalParams = [20, 50, 30, 70, 140]
+        elif stage == 1:
+                bestGlobalParams = [20, 50, 25, 60, 140]
+	else:
+                bestGlobalParams = [20, 50, 25, 60, 140]
         circlesBase = getHoughCircles(img, bestGlobalParams)
         baseJaccard = calculateJaccard(circlesBase, gtCircles)
         totalJac.append(baseJaccard)
