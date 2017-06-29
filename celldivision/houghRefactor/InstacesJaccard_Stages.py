@@ -72,11 +72,11 @@ def getFramesandCircles(datapath,numvideos,test=False):
                 print('Loading image ' + os.path.join(video,image))
                 im = cv2.imread(os.path.join(datapath,video,image),0)
                 im = cv2.medianBlur(im,5)
-				mask = cv2.imread(os.path.join('/home/lapardo/SSD/FilteredMasks',video,str(idx)+'.jpg'),0)
-				print('mask',os.path.join('/home/lapardo/SSD/FilteredMasks',video,str(idx)+'.jpg'))
-				mask = mask/255
-				im = np.multiply(im,mask)
-				Stages.append(stages_dict[os.path.join(video,image)])
+                mask = cv2.imread(os.path.join('/home/lapardo/SSD/FilteredMasks',video,str(idx)+'.jpg'),0)
+                print('mask',os.path.join('/home/lapardo/SSD/FilteredMasks',video,str(idx)+'.jpg'))
+                mask = mask/255
+                im = np.multiply(im,mask)
+                Stages.append(stages_dict[os.path.join(video,image)])
                 frame_array.append(im)
 		masks.append(mask)
     frame_array = np.array(frame_array)
@@ -199,8 +199,8 @@ def FinalJaccar():
 	meanJaccard = jac_perimage.mean()
 
 	print(' ,Mean Jaccard: ' + str(meanJaccard)+ '\n')
-	with open('../Hough/hough_CORRECT.csv','a') as f:
-		f.write(' ,Mean Jaccard: ' + str(meanJaccard)+ '\n')
+	#with open('../Hough/hough_CORRECT.csv','a') as f:
+	#	f.write(' ,Mean Jaccard: ' + str(meanJaccard)+ '\n')
 
 #processPool = mp.Pool(20)
 #mindist = np.array((10,20,30,40,50,60))
