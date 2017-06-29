@@ -42,58 +42,65 @@ def getFramesandCircles(datapath,numvideos,test=False):
         videos = trainvideos
 	stagesfile = 'Stages_train'
 
-	with open('/home/lapardo/SIPAIM/CellSegementation/celldivision/datos_stage/'+stagesfile+'.csv') as f:
-		lines = f.readlines()
-	lines = [x.replace('\n','') for x in lines]
-	lines = [x.split(',') for x in lines]
-	names = [x[0] for x in lines]
-	stage_numbers = [int(x[1]) for x in lines]
-	stages_dict = dict(zip(names,stage_numbers))
+    with open('/home/lapardo/SIPAIM/CellSegementation/celldivision/datos_stage/'+stagesfile+'.csv') as f:
+        lines = f.readlines()
+    lines = [x.replace('\n','') for x in lines]
+    lines = [x.split(',') for x in lines]
+    names = [x[0] for x in lines]
+    stage_numbers = [int(x[1]) for x in lines]
+    stages_dict = dict(zip(names,stage_numbers))
 
-	labels_array = np.zeros((0,21))
-	frame_array = []
-	Stages = []
-	for video in videos:
+    labels_array = np.zeros((0,21))
+    frame_array = []
+    Stages = []
+    masks = []
+    for video in videos:
 
-		pathL = os.path.join(datapath,video, '_trajectories.txt')
-		with open(pathL) as f:
-		        content = np.loadtxt(f)
-		        #content = content[0:-1,:]
-		labels_array = np.concatenate((labels_array,content[0:-1,:]))
+        pathL = os.path.join(datapath,video, '_trajectories.txt')
+        with open(pathL) as f:
+                content = np.loadtxt(f)
+                #content = content[0:-1,:]
+        labels_array = np.concatenate((labels_array,content[0:-1,:]))
 
-		images = os.listdir(os.path.join(datapath,video))
-		images = sorted(images,key=natural_key)
-		images = images[0:len(content)-1]
-
-		for image in images:
-			if os.path.join(datapath,video,image).endswith('png'):
-				print('Loading image ' + os.path.join(video,image))
-				im = cv2.imread(os.path.join(datapath,video,image),0)
+        images = os.listdir(os.path.join(datapath,video))
+        images = sorted(images,key=natural_key)
+        images = images[0:len(content)-1]
+	idx = 0
+        for image in images:
+            idx += 1
+            if os.path.join(datapath,video,image).endswith('png'):
+                print('Loading image ' + os.path.join(video,image))
+                im = cv2.imread(os.path.join(datapath,video,image),0)
+                im = cv2.medianBlur(im,5)
+				mask = cv2.imread(os.path.join('/home/lapardo/SSD/FilteredMasks',video,str(idx)+'.jpg'),0)
+				print('mask',os.path.join('/home/lapardo/SSD/FilteredMasks',video,str(idx)+'.jpg'))
+				mask = mask/255
+				im = np.multiply(im,mask)
 				Stages.append(stages_dict[os.path.join(video,image)])
-				frame_array.append(im)
+                frame_array.append(im)
+		masks.append(mask)
+    frame_array = np.array(frame_array)
+    Stages = np.array(Stages)
+    labels_array = np.array(labels_array)
+    #print('frame_array',frame_array)
+    label_image = []
+    label_circles = []
 
-	frame_array = np.array(frame_array)
-	Stages = np.array(Stages)
-	labels_array = np.array(labels_array)
-	#print('frame_array',frame_array)
-	label_image = []
-	label_circles = []
+    for i in range(labels_array.shape[0]):
+        label_actual = labels_array[i]
+        imagen_actual = frame_array[i,:,:]
+        for pos in range(0,21):
+            #print('pos',pos)
+            if ((pos == 0) or ((pos)%3 == 0)) and (label_actual[pos] != 0):
+                #print('pos ' + str(pos) + ' (pos+1)%3 ' + str((pos+1)%3) + ' label_actual[pos] '+str(label_actual[pos]))
+                circle = label_actual[pos:pos+3]
+                #print('circle',circle)
+                label_image.append(circle)
+        #Label circles tiene todo organizado por imagen
+        label_circles.append(label_image)
+        label_image = []
 
-	for i in range(labels_array.shape[0]):
-		label_actual = labels_array[i]
-		imagen_actual = frame_array[i,:,:]
-		for pos in range(0,21):
-			#print('pos',pos)
-			if ((pos == 0) or ((pos)%3 == 0)) and (label_actual[pos] != 0):
-				#print('pos ' + str(pos) + ' (pos+1)%3 ' + str((pos+1)%3) + ' label_actual[pos] '+str(label_actual[pos]))
-				circle = label_actual[pos:pos+3]
-				#print('circle',circle)
-				label_image.append(circle)
-		#Label circles tiene todo organizado por imagen
-		label_circles.append(label_image)
-		label_image = []
-
-	return frame_array, label_circles, Stages
+    return frame_array, label_circles, Stages
 
 def JaccardInstance(im,gt,mindist,param2,minRadius,nms):
 	#Predccion de hough
@@ -163,27 +170,29 @@ def JaccardInstance(im,gt,mindist,param2,minRadius,nms):
 
 #print('Applying Hough Transform to ' + str(ii) + ' of ' + str(frame_array.shape[0]))
 
-datapath = '/home/lapardo/SSD/alejo/MouEmbTrkDtb/'
+datapath = '/home/lapardo/SSD/MouEmbTrkDtb/'
 numvideos = 100
-frame_array, label_circles, Stages = getFramesandCircles(datapath,numvideos,test=False)
-for n in range(len(label_circles_complete)):
-    if Stages[n] == 0:
-	params = ((20,35,70))
-    elif Stages[n] == 1:
-	params = ((40,30,100))
-    elif Stages[n] == 2:
-	params = ((20,30,70))
-    elif Stages[n] == 3:
-	params = ((40,25,60))
-    else:
-	params = ((20,65,70))
+frame_array, label_circles, Stages = getFramesandCircles(datapath,numvideos,test=True)
 
 def FinalJaccar():
 	jac_perimage = []
+	n=0
 	for ii in range(0,frame_array.shape[0]):
+		n+=1
 		print('Image ' + str(ii) + ' from ' + str(frame_array.shape[0]))
 		im = cv2.medianBlur(frame_array[ii],5)
 		gt = label_circles[ii]
+		if Stages[n] == 0:
+			params = ((20,35,70))
+		elif Stages[n] == 1:
+			params = ((40,30,100))
+		elif Stages[n] == 2:
+			params = ((20,30,70))
+		elif Stages[n] == 3:
+			params = ((40,25,60))
+		else:
+			params = ((20,65,70))
+
 		jac=JaccardInstance(im,gt,params[0],param2=params[1],minRadius=params[2],nms=0.5)
 		jac_perimage.append(jac)
 	jac_perimage = np.array(jac_perimage)
@@ -206,3 +215,4 @@ def FinalJaccar():
 #				params.append((d,p,r,nm))
 
 #processPool.map(FinalJaccar, params)
+FinalJaccar()
