@@ -7,10 +7,14 @@ from sklearn.externals import joblib
 from sklearn.metrics import classification_report
 from sklearn.svm import SVC
 
-#Best k=130 @ 0.77
+#Best k=130 @ 0.72
 
 testPath = '/home/jcleon/Storage/ssd0/cellDivision/Stages/test'
 testNames = os.listdir(testPath)
+videosTest = ['E59', 'E52', 'E53', 'E93', 'E17', 'E44', 'E60', 'E64', 'E72',
+    'E20', 'E39', 'E96', 'E36', 'E24', 'E71', 'E22', 'E35', 'E43',
+    'E31', 'E23', 'E97', 'E67', 'E79', 'E54', 'E05', 'E34', 'E07',
+    'E49', 'E87', 'E58']
 
 imagePaths = []
 imageClasses = []
@@ -18,11 +22,12 @@ class_id = 0
 
 print('Load images')
 for training_name in testNames:
-    dir = os.path.join(testPath, training_name)
-    class_path = imutils.imlist(dir)
-    imagePaths += class_path
-    imageClasses += [class_id] * len(class_path)
-    class_id += 1    
+    if training_name in videosTest:
+        dir = os.path.join(testPath, training_name)
+        class_path = imutils.imlist(dir)
+        imagePaths += class_path
+        imageClasses += [class_id] * len(class_path)
+        class_id += 1    
     
 featureDetector = cv2.xfeatures2d.SIFT_create()
 desList = []
