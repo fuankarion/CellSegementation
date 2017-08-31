@@ -9,7 +9,7 @@ from sklearn.svm import SVC
 
 #Best k=130 @ 0.72
 
-testPath = '/home/jcleon/Storage/ssd0/cellDivision/Stages/test'
+testPath = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb'
 testNames = os.listdir(testPath)
 videosTest = ['E59', 'E52', 'E53', 'E93', 'E17', 'E44', 'E60', 'E64', 'E72',
     'E20', 'E39', 'E96', 'E36', 'E24', 'E71', 'E22', 'E35', 'E43',
