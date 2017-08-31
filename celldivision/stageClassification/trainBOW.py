@@ -8,6 +8,12 @@ from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
+
+videosTest = ['E59', 'E52', 'E53', 'E93', 'E17', 'E44', 'E60', 'E64', 'E72',
+    'E20', 'E39', 'E96', 'E36', 'E24', 'E71', 'E22', 'E35', 'E43',
+    'E31', 'E23', 'E97', 'E67', 'E79', 'E54', 'E05', 'E34', 'E07',
+    'E49', 'E87', 'E58']
+    
 def exploreParameterSet(k, descriptors, descriptorList, targetPath):
     # Perform k-means clustering
     print('Clustering k=', k)
@@ -45,7 +51,7 @@ featureDetector = cv2.xfeatures2d.SIFT_create()
 
 # Get the training classes names and store them in a list
 targetPath = '/home/jcleon/Storage/ssd0/cellDivision/models'
-trainPath = '/home/jcleon/Storage/ssd0/cellDivision/Stages/train'
+trainPath = '/home/jcleon/Storage/disk2/cellDivision/MouEmbTrkDtb'
 trainingNames = os.listdir(trainPath)
 
 # Get all the path to the images and save them in a list
@@ -56,11 +62,12 @@ class_id = 0
 
 print('Load images')
 for training_name in trainingNames:
-    dir = os.path.join(trainPath, training_name)
-    class_path = imutils.imlist(dir)
-    image_paths += class_path
-    image_classes += [class_id] * len(class_path)
-    class_id += 1
+    if training_name not in videosTest:
+        dir = os.path.join(trainPath, training_name)
+        class_path = imutils.imlist(dir)
+        image_paths += class_path
+        image_classes += [class_id] * len(class_path)
+        class_id += 1
 print('A total of ', len(image_paths), ' images')
 
 # List where all the descriptors are stored
@@ -77,5 +84,5 @@ print('Stack descriptors')
 descriptors = np.vstack(descriptorList)
 
 
-for k in range(10, 200, 10):
+for k in range(120, 140, 10):
     exploreParameterSet(k, descriptors, descriptorList, targetPath)
