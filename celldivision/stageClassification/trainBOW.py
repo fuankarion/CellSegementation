@@ -14,6 +14,8 @@ videosTest = ['E59', 'E52', 'E53', 'E93', 'E17', 'E44', 'E60', 'E64', 'E72',
     'E31', 'E23', 'E97', 'E67', 'E79', 'E54', 'E05', 'E34', 'E07',
     'E49', 'E87', 'E58']
     
+videosT = ['E59']
+    
 def exploreParameterSet(k, descriptors, descriptorList, targetPath):
     # Perform k-means clustering
     print('Clustering k=', k)
@@ -62,7 +64,7 @@ class_id = 0
 
 print('Load images')
 for training_name in trainingNames:
-    if training_name not in videosTest:
+    if training_name in videosTest:
         dir = os.path.join(trainPath, training_name)
         class_path = imutils.imlist(dir)
         image_paths += class_path
